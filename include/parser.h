@@ -1,0 +1,84 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jtoumani <jtoumani@student.42heilbronn.de> +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/12 14:40:09 by jtoumani          #+#    #+#             */
+/*   Updated: 2025/09/22 18:14:26 by jtoumani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PARSER_H
+# define PARSER_H
+
+//Includes -- BEGIN
+# include <stdio.h>
+//Includes -- END
+
+//Structs -- BEGIN
+typedef struct s_file_node	t_file_node;
+typedef struct s_file_list	t_file_list;
+typedef struct s_cmd_node	t_cmd_node;
+typedef struct s_cmd_list	t_cmd_list;
+typedef struct s_env_node	t_env_node;
+typedef struct s_env_list	t_env_list;
+
+typedef enum type
+{
+	TK_WORD, //0
+	TK_BUILTIN, //1
+	S_QUOTES, //2 ''
+	D_QUOTES, //3 ""
+	TK_INFILE, //4 <
+	TK_OUTFILE, //5 >
+	TK_HEREDOC, //6 <<
+	TK_APPEND, //7 >>
+	TK_PIPE, //8 |
+	// TK_AMPERSAND, //9 &
+	// TK_AND, //10 &&
+	// TK_OR, //11 ||
+}	t_type;
+
+typedef enum seg_type
+{
+	SEG_NO_QUOTE,
+	SEG_SINGLE,
+	SEG_DOUBLE,
+}	t_seg_type;
+
+typedef struct s_segment
+{
+	char				*value;
+	t_seg_type			type;
+	struct s_segment	*next;
+}	t_segment;
+
+typedef struct s_segment_list
+{
+	t_segment	*head;
+	t_segment	*tail;
+	ssize_t		size;
+}	t_segment_list;
+
+typedef struct s_token
+{
+	t_type			token;
+	char			*value;
+	t_segment_list	*segment_list;
+	struct s_token	*next;
+}	t_token;
+
+typedef struct s_token_list
+{
+	int		syntax_error;
+	t_token	*head;
+	t_token	*tail;
+	ssize_t	size;
+	char	*input;
+}	t_token_list;
+//Structs -- END
+
+#endif
+
