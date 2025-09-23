@@ -1,101 +1,117 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/23 14:22:44 by kskender          #+#    #+#             */
+/*   Updated: 2025/09/23 14:24:02 by kskender         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-/* Standard includes */
-# include <unistd.h>
-# include <fcntl.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <sys/stat.h>
-# include <stdlib.h>
+//Includes -- BEGIN
 # include <stdio.h>
-# include <string.h>
-# include <stdbool.h>
-# include <signal.h>
 # include <errno.h>
-
-/*
-** --------------------------------------------------------------------------
-**  Macros
-** --------------------------------------------------------------------------
-*/
-# define STDIN_FD  0
-# define STDOUT_FD 1
-# define STDERR_FD 2
-
-/*
-** --------------------------------------------------------------------------
-**  Environment linked list
-** --------------------------------------------------------------------------
-*/
-typedef struct s_env
+# include <dirent.h>
+# include <stdbool.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <sys/ioctl.h>
+# include <signal.h>
+# include <termios.h>
+# include "libft/libft.h"
+# include "parser.h"
+# include "executor.h"
+# include "garbage_collector.h"
+//Includes -- END
+typedef struct s_file_node
 {
-	char			*key;
-	char			*value;
-	struct s_env	*next;
-}	t_env;
+	char				*filename;
+	int					redir_type;
+	struct s_file_node	*next;
+}	t_file_node;
 
-/*
-** --------------------------------------------------------------------------
-**  Redirections linked list
-** --------------------------------------------------------------------------
-*/
-typedef enum e_redir_type
+typedef struct s_file_list
 {
-	R_IN,
-	R_OUT,
-	R_APPEND,
-	R_HEREDOC
-}	t_redir_type;
+	t_file_node	*head;
+	t_file_node	*tail;
+	ssize_t		size;
+}	t_file_list;
 
-typedef struct s_redir
+typedef struct s_cmd_node
 {
-	t_redir_type	type;
-	char			*target;
-	int				heredoc_fd;
-	struct s_redir	*next;
-}	t_redir;
+	struct s_cmd_node	*next;
+	int					cmd_type;
+	char				**cmd;
+	t_file_list			*files;
+}	t_cmd_node;
 
-/*
-** --------------------------------------------------------------------------
-**  Command linked list
-** --------------------------------------------------------------------------
-*/
-typedef struct s_cmd
+typedef struct s_cmd_list
 {
-	char			**argv;
-	t_redir			*redirs;
-	bool			is_builtin;
-	pid_t			pid;
-	int				status;
-	struct s_cmd	*next;
-}	t_cmd;
+	int			syntax_error;
+	t_cmd_node	*head;
+	t_cmd_node	*tail;
+	ssize_t		size;
+}	t_cmd_list;
 
-/*
-** --------------------------------------------------------------------------
-**  File node for redirections
-** --------------------------------------------------------------------------
-*/
-typedef struct s_file
+typedef struct s_env_node
 {
-	char			*filename;
-	int				fd;
-	struct s_file	*next;
-}	t_file;
+	char				*type;
+	char				*value;
+	struct s_env_node	*next;
+}	t_env_node;
 
-/*
-** --------------------------------------------------------------------------
-**  Shell context
-** --------------------------------------------------------------------------
-*/
-typedef struct s_shell
+typedef struct s_env_list
 {
-	t_env	*env_list;
-	char	**envp;
-	int		envp_dirty;
-	int		last_status;
-	int		interactive;
-	int		sig_received;
-}	t_shell;
+	t_env_node	*head;
+	t_env_node	*tail;
+	ssize_t		size;
+}	t_env_list;
 
-#endif /* MINISHELL_H */
+//Structs -- BEGIN
+typedef enum CMD_TYPE
+{
+	BUILTIN,
+	CMD,
+	PIPE
+}	t_CMD_TYPE;
+
+typedef enum REDIR_TYPE
+{
+	INFILE,
+	OUTFILE,
+	HEREDOC,
+	OUTFILE_APPEND
+}	t_REDIR_TYPE;
+//Structs -- END
+
+extern volatile sig_atomic_t	g_sigint_status;
+
+//Functions -- BEGIN
+
+//exit_code.c -- BEGIN
+int			*exit_code(void);
+//exit_code.c -- END
+
+//main.c -- BEGIN
+t_env_list	*setup_env_list(void);
+t_env_list	*initialize_shell(char **env);
+char		*get_prompt(void);
+int			process_command(char *prompt, t_env_list *env_list);
+//main.c -- END
+
+//signals.c -- BEGIN
+void		handle_sig_int(int signal_nb);
+void		remove_ctrlc_echo(void);
+void		handle_ctrlc_heredoc(int signal_nb);
+void		start_heredoc_signals(void);
+void		start_signals(void);
+//signals.c -- END
+
+//Functions -- END
+
+#endif
