@@ -6,7 +6,7 @@
 /*   By: jtoumani <jtoumani@student.42heilbronn.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 14:40:09 by jtoumani          #+#    #+#             */
-/*   Updated: 2025/09/22 18:14:26 by jtoumani         ###   ########.fr       */
+/*   Updated: 2025/09/25 18:18:57 by jtoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,21 @@ typedef struct s_token_list
 	char	*input;
 }	t_token_list;
 //Structs -- END
+
+//Lexing
+int main(int argc, char **argv);
+bool is_vailid_red(char *str, int i);
+bool is_red(char *str, int i);
+bool is_valid_pipe(char *str, int i);
+bool check_tokens(char *str);
+bool is_boundary_char(char c);
+bool we_have_token(const char *str, int i);
+int scan_quote(const char *str, int i);
+bool is_valid_quote(char *str, int i);
+
+
+
+
 
 #endif
 
