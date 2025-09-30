@@ -1,93 +1,81 @@
-#include "../include/garbage_collector.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   garbage_collector.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/30 16:08:39 by kskender          #+#    #+#             */
+/*   Updated: 2025/09/30 16:38:37 by kskender         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-static t_gc *g_head = NULL;
+#include "garbage_collector.h"
 
-//allocate memory and track it
-void    *gc_malloc(size_t size)
+// initializing gc
+t_gc	*gc_init(void)
 {
-    void    *mem;
-    t_gc    *node;
+	t_gc	*gc;
 
-    mem = malloc(size);
-    if(!mem)
-        return(NULL);
-    node = malloc(sizeof(t_gc));
-    if(!node)
-    {
-        free(mem);
-        return(NULL);
-    }
-    node->ptr = mem;
-    node->next = g_head;
-    g_head = node;
-    return(mem);
+	gc = malloc(sizeof(t_gc));
+	if (!gc)
+		return (NULL);
+	gc->head = NULL;
+	gc->count = 0;
+	return (gc);
 }
 
-//Track an exisiting pointer
-void    gc_add(void *ptr)
+int	gc_add_node(t_gc *gc, void *ptr, int fd, t_gc_type type)
 {
-    t_gc    *node;
-    if(!ptr)
-        return(0);
-    node = malloc(sizeof(t_gc));
-    if(!node)
-        return(-1);
-    node->ptr = ptr;
-    node->next = g_head;
-    g_head = node;
-    return(0);
+	t_gc_node	*new_node;
+
+	new_node = malloc(sizeof(t_gc_node));
+	if (!new_node)
+		return (0);
+	new_node->ptr = ptr;
+	new_node->fd = fd;
+	new_node->type = type;
+	new_node->next = gc->head;
+	gc->head = new_node;
+	gc->count++;
+	return (1);
 }
 
-//Free all tracked pointers
-void    gc_free_all(void)
+// memory allocations Basics
+void	*gc_malloc(t_gc *gc, size_t size)
 {
-    t_gc    *temp;
+	void	*ptr;
 
-    while(g_head)
-    {
-        temp = g_head;
-        g_head = g_head->next;
-        free(temp ->ptr);
-        free(temp);
-    }
+	ptr = malloc(size);
+	if (!ptr)
+		return (NULL);
+	if (!gc_add_node(gc, ptr, -1, GC_MEM))
+	{
+		free(ptr);
+		return (NULL);
+	}
+	return (ptr);
 }
 
-//Free a redirection linked list
-
-void gc_free_redirs(t_redir *redirs)
+void	*gc_calloc(t_gc *gc, size_t count, size_t size)
 {
-    t_redir *temp;
+	void	*ptr;
 
-    while(redirs)
-    {
-        temp = redirs;
-        redirs = redirs->next;
-        if(temp->target)
-            free(temp->target);
-        free(temp);
-    }
+	ptr = calloc(count, size);
+	if (!ptr)
+		return (NULL);
+	if (!gc_add_node(gc, ptr, -1, GC_MEM))
+	{
+		free(ptr);
+		return (NULL);
+	}
+	return (ptr);
 }
 
-//Free a command linked list and its redirections
-
-void    gc_free_cmd_list(t_cmd *cmds)
+// Registring file descriptors
+void	gc_register_fd(t_gc *gc, int fd)
 {
-    t_cmd   *temp;
-    int     i;
-
-    while(cmds)
-    {
-        temp = cmds;
-        cmds = cmds->next;
-        if(temp->av)
-        {
-            i = 0;
-            while (temp->av[i])
-                free(temp->av[i++]);
-            free(temp->av);
-        }
-        if(temp->redirs)
-            gc_free_redirs(temp->redirs);
-        free(temp);
-    }
+	if (fd < 0)
+		return ;
+	gc_add_node(gc, NULL, fd, GC_FD);
 }
