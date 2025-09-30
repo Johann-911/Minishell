@@ -1,60 +1,53 @@
-#ifndef EXECUTOR_STRUCTS_H
-# define EXECUTOR_STRUCTS_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/24 13:20:10 by kskender          #+#    #+#             */
+/*   Updated: 2025/09/26 22:49:54 by kskender         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#ifndef EXECUTOR_H
+# define EXECUTOR_H
+
+// Includes -- BEGIN
 # include "minishell.h"
+# include <fcntl.h>
+# include <stdbool.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <sys/wait.h>
+# include <unistd.h>
 
-/*
-** --------------------------------------------------------------------------
-**  Pipe structure
-** --------------------------------------------------------------------------
-*/
-typedef struct s_pipe
+typedef enum FILE_CHECK // got the redirecting types for the files
 {
-	int		read_fd;      /* read end of the pipe */
-	int		write_fd;     /* write end of the pipe */
-}	t_pipe;
+	OUTFILE_NOT_USED,
+	OUTFILE_USED,
+	INFILE_NOT_USED,
+	INFILE_USED
+}							t_file_check;
 
-/*
-** --------------------------------------------------------------------------
-**  Heredoc temp file node
-** --------------------------------------------------------------------------
-*/
-typedef struct s_heredoc
-{
-	char			*tmp_filename;   /* temporary file for heredoc */
-	int				fd;              /* file descriptor */
-	struct s_heredoc *next;
-}	t_heredoc;
+// Includes -- END
 
-/*
-** --------------------------------------------------------------------------
-**  Executor command node
-**  Extends t_cmd from minishell.h with runtime info
-** --------------------------------------------------------------------------
-*/
-typedef struct s_exec_cmd
-{
-	t_cmd			*cmd;         /* pointer to general command struct */
-	pid_t			pid;          /* child PID if forked */
-	int				stdin_fd;     /* saved stdin for redirections */
-	int				stdout_fd;    /* saved stdout for redirections */
-	int				exit_status;  /* exit status after execution */
-	struct s_exec_cmd *next;
-}	t_exec_cmd;
+typedef struct s_cmd_list	t_cmd_list;
 
-/*
-** --------------------------------------------------------------------------
-**  Executor context
-**  Stores info about the pipeline being executed
-** --------------------------------------------------------------------------
-*/
-typedef struct s_exec_ctx
-{
-	t_exec_cmd	*cmd_list;       /* linked list of commands in the pipeline */
-	t_pipe		*pipes;          /* array of pipes if multiple commands */
-	int			num_cmds;        /* number of commands in pipeline */
-	t_shell		*shell;          /* pointer to shell context */
-	t_heredoc	*heredocs;       /* linked list of prepared heredoc files */
-}	t_exec_ctx;
+// Redirections --BEGIN
+int							redir_infile(t_file_node *file_node);
+int							redir_heredoc(t_file_node *file_node);
+int							redir_outfile(t_file_node *file_node);
+int							redir_append(t_file_node *file_node);
+// Redirections --END
 
-#endif /* EXECUTOR_STRUCTS_H */
+// Redirectory loops -- BEGIN
+int							handle_heredoc_tempfiles(t_cmd_node *command,
+								t_env_list *env, int heredoc_count);
+int							redir_infiles_loops(t_cmd_node *cmd_node);
+int							redir_outfiles_loops(t_cmd_node *cmd_node);
+// Redirectory loops -- END
+
+// Redirectory utils -- BEGIN
+
+#endif

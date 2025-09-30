@@ -6,7 +6,7 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 14:42:25 by kskender          #+#    #+#             */
-/*   Updated: 2025/09/23 15:23:39 by kskender         ###   ########.fr       */
+/*   Updated: 2025/09/26 14:47:01 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	exec(char *cmd, char **env)
 		ft_putstr_fd("pipex: command not found: ", 2);
 		ft_putendl_fd(s_cmd[0], 2);
 		ft_free_tab(s_cmd);
-		exit(0);
+		exit(127);
 	}
 }
 
@@ -36,6 +36,7 @@ void	child(char **av, int *p_fd, char **env)
 	dup2(fd, 0);
 	dup2(p_fd[1], 1);
 	close(p_fd[0]);
+	close(fd);
 	exec(av[2], env);
 }
 
@@ -52,8 +53,8 @@ void	parent(char **av, int *p_fd, char **env)
 
 int	main(int ac, char **av, char **env)
 {
-	int p_fd[2];
-	pid_t pid;
+	int		p_fd[2];
+	pid_t	pid;
 
 	if (ac != 5)
 		handle_exit(1);
@@ -65,4 +66,5 @@ int	main(int ac, char **av, char **env)
 	if (!pid)
 		child(av, p_fd, env);
 	parent(av, p_fd, env);
+	return (0);
 }
