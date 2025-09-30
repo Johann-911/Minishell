@@ -69,4 +69,5 @@ void	doc_expander_writer(char *line, int write_fd, t_env_list *env_list)
 	token = ft_malloc(sizeof(t_token));
 	token->value = gc_strdup(line);
 	token->segment_list = NULL;
+    split 
 }

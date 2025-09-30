@@ -49,5 +49,10 @@ int							redir_outfiles_loops(t_cmd_node *cmd_node);
 // Redirectory loops -- END
 
 // Redirectory utils -- BEGIN
+int							file_redirector(t_cmd_node *cmd_node);
+void						delete_all_temp_files(const char *folder_name);
+void						set_interactive_mode(void);
+void 					  doc_expander_writer(char *line, int write_fd, t_env_list *env_list);
+//Redirectory utils -- BEGIN
 
 #endif
