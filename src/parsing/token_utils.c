@@ -6,62 +6,78 @@
 /*   By: jtoumani <jtoumani@student.42heilbronn.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 13:37:54 by jtoumani          #+#    #+#             */
-/*   Updated: 2025/09/25 18:23:37 by jtoumani         ###   ########.fr       */
+/*   Updated: 2025/09/26 12:35:14 by jtoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include "parser.h"
 
-bool is_boundary_char(char c)
+int	skip_spaces(char *str, int i)
 {
-	return(c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>');	
+	while (str[i] == ' ' || str[i] == '\t')
+		i++;
+	return (i);
 }
 
-bool we_have_token(const char *str, int i)
+bool	we_have_token(const char *str, int *i)
 {
-	int j;
-	int next;
-	
-	j = i;
-	if(!str || !str[j] || is_boundary_char(str[j]))
-		return false;
-	while(str && !is_boundary_char(str[j]))
+	int	start;
+
+	if (!str || !str[*i] || str[*i] == ' ' || str[*i] == '\t' || str[*i] == '<'
+		|| str[*i] == '>' || str[*i] == '|')
+		return (false);
+	start = *i;
+	while (str[*i] && str[*i] != ' ' && str[*i] != '\t' && str[*i] != '<'
+		&& str[*i] != '>' && str[*i] != '|')
 	{
-		if(str[j] == '\'' || str[j] == '\"')
+		if (str[*i] == '\'' || str[*i] == '\"')
 		{
-			next = scan_quote(str, j);
-			if(next < 0)
-				return false;
-			j = next;			
-		}		
+			if (!is_valid_quote((char *)str, i))
+				return (false);
+		}
 		else
-			j++;	
+			(*i)++;
 	}
-	return j > i;	
+	return (*i > start);
+}
+int	scan_word(char *str, int i)
+{
+	int	j;
+
+	j = i;
+	if (!we_have_token(str, &j))
+		return (-1);
+	return (j);
 }
 
-int scan_quote(const char *str, int i)
+int	scan_quote(const char *str, int i)
 {
-	char q;
-	
-	if(!str || !str[i] ||(str[i] != '\'' && str[i] != '\"'))
-		return -1;
+	char	q;
+
+	if (!str || !str[i] || (str[i] != '\'' && str[i] != '\"'))
+		return (-1);
 	q = str[i];
 	i++;
-	while(str[i] && str[i] != q)
+	while (str[i] && str[i] != q)
 		i++;
-	if(!str[i])
-		return -1;
-	return i + 1;
-
+	if (!str[i])
+		return (-1);
+	return (i + 1);
 }
 
-bool is_valid_quote(char *str, int i)
+bool	is_valid_quote(char *str, int *i)
 {
-	if(!str || !str[i])
-		return true;
-	if(str[i] != '\'' && str[i] != '\"')
-		return true;
-	return (scan_quote(str, i) >= 0);
+	char	q;
+
+	if (!str || !str[*i] || (str[*i] != '\'' && str[*i] != '\"'))
+		return (false);
+	q = str[*i];
+	(*i)++;
+	while (str[*i] && str[*i] != q)
+		(*i)++;
+	if (!str[*i])
+		return (false);
+	(*i)++;
+	return (true);
 }
