@@ -22,13 +22,14 @@ int	skip_spaces(char *str, int i)
 
 bool	we_have_token(const char *str, int *i)
 {
-	int start;
-	if (!str || !str[*i] || str[*i] == ' ' || str[*i] == '\t'
-		|| str[*i] == '<' || str[*i] == '>' || str[*i] == '|')
+	int	start;
+
+	if (!str || !str[*i] || str[*i] == ' ' || str[*i] == '\t' || str[*i] == '<'
+		|| str[*i] == '>' || str[*i] == '|')
 		return (false);
 	start = *i;
-	while (str[*i] && str[*i] != ' ' && str[*i] != '\t'
-		&& str[*i] != '<' && str[*i] != '>' && str[*i] != '|')
+	while (str[*i] && str[*i] != ' ' && str[*i] != '\t' && str[*i] != '<'
+		&& str[*i] != '>' && str[*i] != '|')
 	{
 		if (str[*i] == '\'' || str[*i] == '\"')
 		{
@@ -45,8 +46,8 @@ int	scan_word(char *str, int i)
 	int	j;
 
 	j = i;
-	if(!we_have_token(str, &j))
-		return -1;
+	if (!we_have_token(str, &j))
+		return (-1);
 	return (j);
 }
 
