@@ -6,7 +6,7 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:02:10 by kskender          #+#    #+#             */
-/*   Updated: 2025/09/30 21:33:11 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/06 17:18:29 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,36 +41,37 @@ typedef struct s_gc
 	size_t				count;
 }						t_gc;
 
+// Global GC access
+t_gc_collector			*get_gc(void);
 // Core GC initialization and cleanup
 t_gc					*gc_init(void);
-void					gc_cleanup(t_gc *gc);
-int						gc_add_node(t_gc *gc, void *ptr, int fd,
-							t_gc_type type);
+void					gc_cleanup(void);
+int						gc_add_node(void *ptr, int fd, t_gc_type type);
 
 // Basic memory management
-void					*gc_malloc(t_gc *gc, size_t size);
-void					*gc_calloc(t_gc *gc, size_t count, size_t size);
+void					*gc_malloc(size_t size);
+void					*gc_calloc(size_t count, size_t size);
 
 // Basic file descriptor management
-void					gc_register_fd(t_gc *gc, int fd);
+void					gc_register_fd(int fd);
 
 // Individual cleanup
-void					gc_free(t_gc *gc, void *ptr);
-void					gc_close(t_gc *gc, int fd);
+void					gc_free(void *ptr);
+void					gc_close(int fd);
 
 // Utility functions
-void					gc_print(t_gc *gc);
-size_t					gc_count(t_gc *gc);
+void					gc_print(void);
+size_t					gc_count(void);
 
 // String utilities
-char					*gc_strdup(t_gc *gc, const char *s);
-char					*gc_strndup(t_gc *gc, const char *s, size_t n);
-char					**gc_split(t_gc *gc, const char *s, char c);
+char					*gc_strdup(const char *s);
+char					*gc_strndup(const char *s, size_t n);
+char					**gc_split(const char *s, char c);
 
 // File descriptor utilities
-int						gc_open(t_gc *gc, const char *path, int flags, ...);
-int						gc_pipe(t_gc *gc, int pipefd[2]);
-int						gc_dup(t_gc *gc, int oldfd);
-int						gc_dup2(t_gc *gc, int oldfd, int newfd);
+int						gc_open(const char *path, int flags, ...);
+int						gc_pipe(int pipefd[2]);
+int						gc_dup(int oldfd);
+int						gc_dup2(int oldfd, int newfd);
 
 #endif

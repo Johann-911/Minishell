@@ -1,32 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_memcpy.c                                        :+:      :+:    :+:   */
+/*   exec_basics1.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/15 14:04:39 by kskender          #+#    #+#             */
-/*   Updated: 2025/03/18 17:45:19 by kskender         ###   ########.fr       */
+/*   Created: 2025/10/01 17:08:24 by kskender          #+#    #+#             */
+/*   Updated: 2025/10/06 18:24:42 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "executor.h"
 
-void	*ft_memcpy(void *dest, const void *src, size_t n)
+void	close_and_reset(int *prev_in_out, int *new_in_out, int *reset)
 {
-	unsigned char		*tmp_dst;
-	const unsigned char	*tmp_src;
+	t_gc	*gc;
 
-	if (!dest && !src)
-		return (NULL);
-	tmp_dst = (unsigned char *)dest;
-	tmp_src = (const unsigned char *)src;
-	while (n > 0)
+	gc = get_gc();
+	if (prev_in_out[0] != NO_REDIRECTION)
 	{
-		*tmp_dst = *tmp_src;
-		tmp_dst++;
-		tmp_src++;
-		n--;
+		gc_close(prev_in_out[0]);
+		prev_in_out[0] = NO_REDIRECTION;
 	}
-	return (dest);
+	if (new_in_out[1] != NO_REDIRECTION)
+	{
+		gc_close(new_in_out[1]);
+		new_in_out[1] = NO_REDIRECTION;
+	}
+	reset[0] = gc_dup(STDIN_FILENO);
+	reset[1] = gc_dup(STDOUT_FILENO);
 }
