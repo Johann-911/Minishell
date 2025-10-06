@@ -6,7 +6,7 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:39:30 by kskender          #+#    #+#             */
-/*   Updated: 2025/09/30 17:45:17 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/06 17:45:11 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,13 @@ void	gc_free(t_gc *gc, void *ptr)
 	}
 }
 
-void	gc_close(t_gc *gc, int fd)
+void	gc_close(int fd)
 {
 	t_gc_node	*current;
 	t_gc_node	*prev;
+	t_gc		*gc;
 
+	gc = get_gc();
 	if (!gc || fd < 0)
 		return ;
 	current = gc->head;
@@ -68,11 +70,13 @@ void	gc_close(t_gc *gc, int fd)
 }
 
 // Cleanup everything
-void	gc_cleanup(t_gc *gc)
+void	gc_cleanup(void)
 {
 	t_gc_node	*current;
 	t_gc_node	*next;
+	t_gc		*gc;
 
+	gc = get_gc();
 	if (!gc)
 		return ;
 	current = gc->head;
@@ -90,11 +94,13 @@ void	gc_cleanup(t_gc *gc)
 }
 
 // Utility functions
-void	gc_print(t_gc *gc)
+void	gc_print(void)
 {
 	t_gc_node	*current;
+	t_gc		*gc;
 	int			i;
 
+	gc = get_gc();
 	if (!gc)
 	{
 		printf("GC is NULL\n");
