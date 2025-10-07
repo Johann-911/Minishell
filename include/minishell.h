@@ -6,7 +6,7 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 14:22:44 by kskender          #+#    #+#             */
-/*   Updated: 2025/09/24 13:20:36 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/07 13:24:06 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ typedef struct s_cmd_node
 	int							cmd_type;
 	char						**cmd;
 	t_file_list					*files;
+	t_env_list					*env;
 }								t_cmd_node;
 
 typedef struct s_cmd_list
@@ -69,6 +70,7 @@ typedef struct s_env_list
 	t_env_node					*head;
 	t_env_node					*tail;
 	ssize_t						size;
+	pid_t						*pid;
 }								t_env_list;
 
 // Structs -- BEGIN
