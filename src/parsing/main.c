@@ -9,14 +9,9 @@
 /*   Updated: 2025/09/26 14:25:02 by jtoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "minishell.h"
-#include "parser.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <unistd.h>
+#include "parser.h"
 
 static void	test_input(char *s)
 {

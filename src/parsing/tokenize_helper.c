@@ -1,4 +1,3 @@
-#include "minishell.h"
 #include "parser.h"
 
 int	red_len(char *input, int i)

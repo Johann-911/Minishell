@@ -16,6 +16,8 @@
 // Includes -- BEGIN
 #include "minishell.h"
 # include <stdio.h>
+#include "parser.h"
+// #include "executor.h"
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <stdbool.h>
@@ -86,7 +88,7 @@ typedef struct s_token_list
 // Structs -- END
 
 // Lexing checking syntax
-int							main(int argc, char **argv);
+// int							main(int argc, char **argv);
 bool						is_valid_red(char *str, int i);
 bool						is_red(char *str, int *i);
 bool						is_valid_pipe(char *str, int *i);
@@ -98,6 +100,20 @@ bool						is_valid_quote(char *str, int *i);
 int							skip_spaces(char *str, int i);
 //tokenize 
 t_token *create_token(t_toktype type, char *val);
+int	push_token(t_token_list *lst, t_token *token);
+int	add_token(t_token_list *lst, t_toktype type, char *str, int len);
+int	handle_word(t_token_list *lst, char *input, int *i);
+int	tokenize(t_token_list *lst, char *input);
+int	red_len(char *input, int i);
+t_toktype red_type(const char *str, int i);
+int handle_quote(char *input, int *i);
+int handle_redir(t_token_list *lst, char *input, int *i, int red_len);
+int	word_end(char *input, int i);
+
+//debug
+void    *gc_malloc(size_t size);
+char    *gc_substr(char *s, unsigned int start, size_t len);
+void print_tokens(const t_token_list *lst);
 
 
 

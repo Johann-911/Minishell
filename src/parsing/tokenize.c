@@ -1,14 +1,12 @@
 
 
-#include "executor.h"
-#include "minishell.h"
 #include "parser.h"
 
 t_token	*create_token(t_toktype type, char *val)
 {
 	t_token	*t;
 
-	t = gc_malloc(gc, sizeof(*t));
+	t = malloc(sizeof(*t));
 	if (!t)
 		return (NULL);
 	t->type = type;
@@ -51,27 +49,27 @@ int	add_token(t_token_list *lst, t_toktype type, char *str, int len)
 	return (push_token(lst, tok));
 }
 
-int	handle_word(t_token_list *lst, t_token *token, char *input, int *i)
+int	handle_word(t_token_list *lst, char *input, int *i)
 {
-	int next;
-	int start;
+	int	next;
+	int	start;
 
 	start = i;
 	while (input && input[*i] != ' ' && input[*i] != '\t' && input[*i] != '|'
 		&& input[*i] != '<' && input[*i] != '<')
 	{
-		if(input[*i] == '\'' || input[*i] == '\"') 
+		if (input[*i] == '\'' || input[*i] == '\"')
 		{
 			next = scan_quote(input, *i);
-			if(next < 0)
-				return -1;
+			if (next < 0)
+				return (-1);
 			*i = next;
 		}
 		else
 			*i++;
-	}	
-	if(*i == start)
-		return 0;
+	}
+	if (*i == start)
+		return (0);
 	return (add_token(lst, TK_WORD, input + start, *i - start));
 }
 
@@ -89,11 +87,13 @@ int	tokenize(t_token_list *lst, char *input)
 		if (input[i] == '|')
 			add_token(lst, TK_PIPE, input + i, 1);
 		i++;
-		else if (is_red(input, i)) 
-			handle_redir(lst, input, i, red_len(input, i));
-		else
-			handle_word(input, end);
-
+		if (is_red(input, i))
+		{
+			if(!handle_redir(lst, input, i, red_len(input, i)))
+				return 0;
+		}
+		if (!handle_word(lst, input, i))
+			return (0);
 	}
-	return 1;
+	return (1);
 }
