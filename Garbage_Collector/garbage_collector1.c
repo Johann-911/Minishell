@@ -6,18 +6,20 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:39:30 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 17:45:11 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/07 17:54:29 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "garbage_collector.h"
 
 // Cleanup all allocated memory and close all registered fds
-void	gc_free(t_gc *gc, void *ptr)
+void	gc_free(void *ptr)
 {
 	t_gc_node	*current;
 	t_gc_node	*prev;
+	t_gc		*gc;
 
+	gc = get_gc();
 	if (!gc || !ptr)
 		return ;
 	current = gc->head;
