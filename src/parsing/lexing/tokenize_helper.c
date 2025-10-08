@@ -26,6 +26,7 @@ t_toktype	red_type(const char *str, int i)
 int handle_quote(char *input, int *i)
 {
 	int next;
+	int i;
 
 	if(input[*i] != '\'' && input[*i] != '\"')
 		return 0;
