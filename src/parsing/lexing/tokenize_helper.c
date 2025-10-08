@@ -86,6 +86,6 @@ int	word_end(char *input, int i)
 		}
 		else
 			i++;
-	}
+	}   
 	return (i);
 }
