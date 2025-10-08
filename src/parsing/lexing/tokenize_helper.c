@@ -64,7 +64,7 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 	if(end <= start)
 		return 0;
 	if(!add_token(lst, TK_WORD, input + start, end - start))
-		return ;
+		return 0;
 	*i = end;
 	return 1;
 }

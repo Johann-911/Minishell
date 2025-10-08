@@ -6,7 +6,7 @@ t_token	*create_token(t_toktype type, char *val)
 {
 	t_token	*t;
 
-	t = malloc(sizeof(*t));
+	t = gc_malloc(sizeof(*t));
 	if (!t)
 		return (NULL);
 	t->type = type;
@@ -62,7 +62,7 @@ int	handle_word(t_token_list *lst, char *input, int *i)
 		{
 			next = scan_quote(input, *i);
 			if (next < 0)
-				return (-1);
+				return (0);
 			*i = next;
 		}
 		else
@@ -85,14 +85,17 @@ int	tokenize(t_token_list *lst, char *input)
 		if (!input[i])
 			break ;
 		if (input[i] == '|')
-			add_token(lst, TK_PIPE, input + i, 1);
+		{
+			if(!add_token(lst, TK_PIPE, input + i, 1));
+				return 0;
+		}
 		i++;
 		if (is_red(input, i))
 		{
 			if(!handle_redir(lst, input, i, red_len(input, i)))
 				return 0;
 		}
-		if (!handle_word(lst, input, i))
+		if (!handle_word(lst, input, &i))
 			return (0);
 	}
 	return (1);
