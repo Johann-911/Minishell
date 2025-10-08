@@ -18,6 +18,7 @@
 # include <stdarg.h>
 # include <stdlib.h>
 # include <string.h>
+#include "parser.h"
 # include <sys/stat.h>
 # include <unistd.h>
 
