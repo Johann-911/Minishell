@@ -54,9 +54,9 @@ int	handle_word(t_token_list *lst, char *input, int *i)
 	int	next;
 	int	start;
 
-	start = i;
-	while (input && input[*i] != ' ' && input[*i] != '\t' && input[*i] != '|'
-		&& input[*i] != '<' && input[*i] != '<')
+	start = *i;
+	while (input[*i] && input[*i] != ' ' && input[*i] != '\t' && input[*i] != '|'
+		&& input[*i] != '<' && input[*i] != '>' && input[*i] != '|')
 	{
 		if (input[*i] == '\'' || input[*i] == '\"')
 		{
@@ -66,7 +66,7 @@ int	handle_word(t_token_list *lst, char *input, int *i)
 			*i = next;
 		}
 		else
-			*i++;
+			(*i)++;
 	}
 	if (*i == start)
 		return (0);
@@ -76,27 +76,27 @@ int	handle_word(t_token_list *lst, char *input, int *i)
 int	tokenize(t_token_list *lst, char *input)
 {
 	int	i;
-	int	start;
 
 	i = 0;
 	while (input[i])
 	{
 		i = skip_spaces(input, i);
 		if (!input[i])
-			break ;
-		if (input[i] == '|')
+			break;
+		if(input[i] == '|')
 		{
-			if(!add_token(lst, TK_PIPE, input + i, 1));
-				return 0;
+			if (!add_token(lst, TK_PIPE, input + i, 1))
+				return (0);
+			i++;
 		}
-		i++;
-		if (is_red(input, i))
+		else if (red_len(input, i))
 		{
-			if(!handle_redir(lst, input, i, red_len(input, i)))
-				return 0;
+			if (!handle_redir(lst, input, &i, red_len(input, i)))
+				return (0);
 		}
-		if (!handle_word(lst, input, &i))
+		else if (!handle_word(lst, input, &i))
 			return (0);
 	}
 	return (1);
 }
+// echo >    '   '

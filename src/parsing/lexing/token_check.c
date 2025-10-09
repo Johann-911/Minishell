@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
 #include "parser.h"
 
 bool	is_boundary_char(char c)
@@ -18,10 +18,11 @@ bool	is_boundary_char(char c)
 	return (c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>');
 }
 
-bool	is_valid_red(char *str, int i)
+bool	is_valid_red(char *str, int *i)
 {
-	i = skip_spaces(str, i);
-	if (str[i] == '\0' || str[i] == '<' || str[i] == '>' || str[i] == '|')
+	while (str[*i] &&( str[*i] == ' ' || str[*i] == '\t'))
+		(*i)++;
+	if (str[*i] == '\0' || str[*i] == '<' || str[*i] == '>' || str[*i] == '|')
 		return (false);
 	return (true);
 }
@@ -31,23 +32,24 @@ bool	is_red(char *str, int *i)
 	if (str[*i] == '<' && str[*i + 1] == '<')
 	{
 		(*i) += 2;
-		return (is_valid_red(str, *i));
+		return (is_valid_red(str, i));
 	}
 	else if (str[*i] == '>' && str[*i + 1] == '>')
 	{
 		(*i) += 2;
-		return (is_valid_red(str, *i));
+		return (is_valid_red(str, i));
 	}
 	else if (str[*i] == '<')
 	{
 		(*i)++;
-		return (is_valid_red(str, *i));
+		return (is_valid_red(str, i));
 	}
 	else if (str[*i] == '>')
 	{
 		(*i)++;
-		return (is_valid_red(str, *i));
+		return (is_valid_red(str, i));
 	}
+
 	return (false);
 }
 
@@ -55,7 +57,7 @@ bool	is_valid_pipe(char *str, int *i)
 {
 	(*i)++;
 	*i = skip_spaces(str, *i);
-	if (str[*i] == '\0' || str[*i] == '|' || str[*i] == '<' || str[*i] == '>')
+	if (str[*i] == '\0' || str[*i] == '|')
 		return (false);
 	return (true);
 }
