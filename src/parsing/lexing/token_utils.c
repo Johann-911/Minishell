@@ -10,37 +10,38 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
 #include "parser.h"
 
 int	skip_spaces(char *str, int i)
 {
-	while (str[i] == ' ' || str[i] == '\t')
+	while (str[i] &&( str[i] == ' ' || str[i] == '\t'))
 		i++;
 	return (i);
 }
 
 bool	we_have_token(const char *str, int *i)
 {
-	int	start;
+	int	start;	
+	int next;
 
-	if (!str || !str[*i] || str[*i] == ' ' || str[*i] == '\t' || str[*i] == '<'
-		|| str[*i] == '>' || str[*i] == '|')
-		return (false);
 	start = *i;
 	while (str[*i] && str[*i] != ' ' && str[*i] != '\t' && str[*i] != '<'
 		&& str[*i] != '>' && str[*i] != '|')
 	{
 		if (str[*i] == '\'' || str[*i] == '\"')
 		{
-			if (!is_valid_quote((char *)str, i))
-				return (false);
+			next = scan_quote(str, *i);
+			if (next < 0)
+				return false;
+			*i = next;
 		}
 		else
 			(*i)++;
-	}
+	}		
 	return (*i > start);
 }
+
 int	scan_word(char *str, int i)
 {
 	int	j;
@@ -53,31 +54,27 @@ int	scan_word(char *str, int i)
 
 int	scan_quote(const char *str, int i)
 {
-	char	q;
+	char	start;
+	int end;
 
 	if (!str || !str[i] || (str[i] != '\'' && str[i] != '\"'))
+		return i;
+	start = str[i++];
+	end = i;
+	while (str[end] && str[end] != start)
+		end++;
+	if (!str[end])
 		return (-1);
-	q = str[i];
-	i++;
-	while (str[i] && str[i] != q)
-		i++;
-	if (!str[i])
-		return (-1);
-	return (i + 1);
+	return (end + 1);
 }
 
 bool	is_valid_quote(char *str, int *i)
 {
-	char	q;
+	int next;
 
-	if (!str || !str[*i] || (str[*i] != '\'' && str[*i] != '\"'))
-		return (false);
-	q = str[*i];
-	(*i)++;
-	while (str[*i] && str[*i] != q)
-		(*i)++;
-	if (!str[*i])
-		return (false);
-	(*i)++;
+	next = scan_quote(str, *i);
+	if (next < 0)
+		return false;
+	*i = next;
 	return (true);
 }

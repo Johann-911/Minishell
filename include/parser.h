@@ -14,9 +14,11 @@
 # define PARSER_H
 
 // Includes -- BEGIN
-#include "minishell.h"
+// #include "minishell.h"
 # include <stdio.h>
+// #include "executor.h"
 #include "parser.h"
+#include <aio.h>
 // #include "executor.h"
 # include <readline/history.h>
 # include <readline/readline.h>
@@ -89,7 +91,7 @@ typedef struct s_token_list
 
 // Lexing checking syntax
 // int							main(int argc, char **argv);
-bool						is_valid_red(char *str, int i);
+bool						is_valid_red(char *str, int *i);
 bool						is_red(char *str, int *i);
 bool						is_valid_pipe(char *str, int *i);
 bool						check_tokens(char *str, int i);

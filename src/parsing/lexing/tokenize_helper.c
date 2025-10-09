@@ -26,8 +26,7 @@ t_toktype	red_type(const char *str, int i)
 int handle_quote(char *input, int *i)
 {
 	int next;
-	int i;
-
+	
 	if(input[*i] != '\'' && input[*i] != '\"')
 		return 0;
 	next = scan_quote(input, *i);
@@ -49,6 +48,8 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 		return 0;
 	*i += red_len;
 	*i = skip_spaces(input, *i);
+	 if (!input[*i] || input[*i] == '|' || input[*i] == '<' || input[*i] == '>')
+        return 0;
 	if(input[*i] == '\'' || input[*i] == '\"')
 	{
 		start = *i;

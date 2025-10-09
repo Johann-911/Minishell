@@ -12,34 +12,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "debug.h"
 
-static void	test_input(char *s)
+static void test_input(char *s)
 {
-	int	ok;
+    int ok = check_tokens(s, 0);
+    printf("[%s] %s\n", ok ? "OK" : "ERR", s);
+    if (!ok) return;
 
-	ok = check_tokens(s, 0); // falls Signatur geändert: ok = check_tokens(s);
-	printf("[%-3s] %s\n", ok ? "OK" : "ERR", s);
+    t_token_list lst = (t_token_list){0};
+    if (tokenize(&lst, s))
+        print_tokens(&lst);
 }
 
-
-int	main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	char	*line;
-	
-	if (argc > 1)
-	{
-		for (int i = 1; i < argc; i++)
-			test_input(argv[i]);
-		return (0);
-	}
-	while ((line = readline("Zoro > ")) != NULL)
-	{
-		if (*line)
-		test_input(line);
-		free(line);
-	}
-	write(1, "\n", 1);
-	return (0);
+    if (argc > 1) {
+        for (int i = 1; i < argc; i++)
+            test_input(argv[i]);
+        return 0;
+    }
+    char buf[1024];
+    while (fgets(buf, sizeof(buf), stdin)) {
+        size_t n = strcspn(buf, "\n");
+        buf[n] = '\0';
+        test_input(buf);
+    }
+    return 0;
 }
 
 

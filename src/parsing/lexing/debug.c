@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include "parser.h"
+#include "debug.h"
 
 static const char *tok_name(t_toktype t)
 {
-    switch (t)
-    {
+    switch (t) {
         case TK_WORD:    return "WORD";
         case TK_PIPE:    return "PIPE";
         case TK_INFILE:  return "INFILE";
@@ -15,20 +13,16 @@ static const char *tok_name(t_toktype t)
     }
 }
 
-void	print_tokens(const t_token_list *lst)
+void print_tokens(const t_token_list *lst)
 {
-    const t_token	*cur;
-    int				i;
+    const t_token *cur = lst ? lst->head : NULL;
+    int i = 0;
 
-    printf("Tokens (%zd):\n", lst ? lst->size : 0); // ssize_t => %zd
-    if (!lst)
-        return;
-    cur = lst->head;
-    i = 0;
-    while (cur)
-    {
-        printf("  [%02d] %-7s value: %s\n",
-            i++, tok_name(cur->type), cur->value ? cur->value : "(null)");
+    printf("%sTokens (%zd):%s\n", COLOR_YELLOW, lst ? lst->size : 0, COLOR_RESET);
+    while (cur) {
+        printf("  [%02d] %-7s value: %s%s%s\n",
+               i++, tok_name(cur->type),
+               COLOR_GREEN, cur->value ? cur->value : "(null)", COLOR_RESET);
         cur = cur->next;
     }
 }
