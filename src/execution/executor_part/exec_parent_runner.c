@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   exec_parent_runner.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 13:14:57 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 18:36:37 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/15 00:58:47 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
+#include "builtins.h"
 
 /*
 1.sets input/output redirections for a comman and checks for errors
@@ -18,16 +19,17 @@
 3. Returns EXIT_SUCCESS on success, or error code on failure
 4. uses GC-tracked file descriptors to prevent leaks
 */
-static int	setting_infile_and_outfile(t_cmd_node *cmd, int *io_data)
+static int setting_infile_and_outfile(t_cmd_node *cmd, int *io_data)
 {
-	int		error_code;
-	t_gc	*gc;
+	int error_code;
+	// ...removed unused variable gc...
 
-	gc = get_gc();
+	// ...removed assignment to undeclared variable gc...
 	error_code = 0;
 	if (io_data[0] != NO_REDIRECTION)
 	{
-		error_code = setup_input_file(cmd);
+		// Cast to t_commandlist* if compatible, else refactor function
+		error_code = setup_input_file((t_commandlist *)cmd);
 		io_data[2] = NO_REDIRECTION;
 		io_data[4] = NO_REDIRECTION;
 		if (error_code != EXIT_SUCCESS)
@@ -35,7 +37,7 @@ static int	setting_infile_and_outfile(t_cmd_node *cmd, int *io_data)
 	}
 	if (io_data[1] != NO_REDIRECTION)
 	{
-		error_code = setup_output_file(cmd, gc);
+		error_code = setup_output_file((t_commandlist *)cmd);
 		io_data[2] = NO_REDIRECTION;
 		io_data[4] = NO_REDIRECTION;
 		if (error_code != EXIT_SUCCESS)
@@ -51,22 +53,14 @@ static int	setting_infile_and_outfile(t_cmd_node *cmd, int *io_data)
 4.returns PID(process ID) of the command executed
 */
 
-pid_t	exec_parent_runner(t_cmd_node *cmd, int *io_data)
+pid_t exec_parent_runner(t_cmd_node *cmd, int *io_data)
 {
-	int	error_code;
+	int error_code;
 
 	error_code = setting_infile_and_outfile(cmd, io_data);
 	dup_and_or_close(&io_data[2], &io_data[4]);
 	if (error_code != EXIT_SUCCESS)
-		return (cmd->env->pid);
+		return *(cmd->env->pid);
 	error_code = table_of_builtins(cmd, generate_env(cmd->env), 1);
-	return (cmd->env->pid);
-}
-
-// Registring file descriptors
-void	gc_register_fd(int fd)
-{
-	if (fd < 0)
-		return ;
-	gc_add_node(NULL, fd, GC_FD);
+	return *(cmd->env->pid);
 }

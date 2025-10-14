@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   exec_redirections1.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:43:35 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 18:28:48 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/15 00:58:49 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
 
 // OUTPUT STARTS HERE FOR REDIRECTIONS
-static t_filelist	*find_last_output(t_commandlist *cmd, int output_count)
+static t_filelist *find_last_output(t_commandlist *cmd, int output_count)
 {
-	int			current_count;
-	t_filelist	*current;
+	int current_count;
+	t_filelist *current;
 
 	current_count = 0;
 	current = cmd->files;
 	while (current != NULL)
 	{
-		if (current->type == OUTFILE || current->type == APPEND)
+		if (current->type == OUTFILE || current->type == OUTFILE_APPEND)
 		{
 			current_count++;
 			if (current_count == output_count)
@@ -33,12 +33,12 @@ static t_filelist	*find_last_output(t_commandlist *cmd, int output_count)
 	return (NULL);
 }
 
-int	setup_output_file(t_commandlist *cmd, t_gc *gc)
+int setup_output_file(t_commandlist *cmd)
 {
-	int			output_count;
-	t_filelist	*last_output;
-	int			fd;
-	int			flags;
+	int output_count;
+	t_filelist *last_output;
+	int fd;
+	int flags;
 
 	output_count = count_output(cmd);
 	if (output_count == 0)
@@ -49,8 +49,9 @@ int	setup_output_file(t_commandlist *cmd, t_gc *gc)
 	flags = O_WRONLY | O_CREAT;
 	if (last_output->type == OUTFILE)
 		flags |= O_TRUNC;
-	else if (last_output->type == APPEND)
+	else if (last_output->type == OUTFILE_APPEND)
 		flags |= O_APPEND;
-	fd = gc_open(gc, last_output->filename, flags, 0644);
+	printf("[DEBUG] output redirection: opening '%s' with flags %d\n", last_output->filename, flags);
+	fd = gc_open(last_output->filename, flags, 0644);
 	return (fd);
 }
