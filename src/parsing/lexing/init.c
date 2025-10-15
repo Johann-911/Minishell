@@ -2,7 +2,12 @@
 // #include "minishell.h"
 #include "parser.h"
 
-
+void init_segment_lst(t_segment_list *lst)
+{
+	lst->head = NULL;
+	lst->tail = NULL;
+	lst->size = 0;
+}
 
 
 

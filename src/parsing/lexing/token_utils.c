@@ -15,15 +15,15 @@
 
 int	skip_spaces(char *str, int i)
 {
-	while (str[i] &&( str[i] == ' ' || str[i] == '\t'))
+	while (str[i] && (str[i] == ' ' || str[i] == '\t'))
 		i++;
 	return (i);
 }
 
 bool	we_have_token(const char *str, int *i)
 {
-	int	start;	
-	int next;
+	int	start;
+	int	next;
 
 	start = *i;
 	while (str[*i] && str[*i] != ' ' && str[*i] != '\t' && str[*i] != '<'
@@ -33,12 +33,12 @@ bool	we_have_token(const char *str, int *i)
 		{
 			next = scan_quote(str, *i);
 			if (next < 0)
-				return false;
+				return (false);
 			*i = next;
 		}
 		else
 			(*i)++;
-	}		
+	}
 	return (*i > start);
 }
 
@@ -55,10 +55,10 @@ int	scan_word(char *str, int i)
 int	scan_quote(const char *str, int i)
 {
 	char	start;
-	int end;
+	int		end;
 
 	if (!str || !str[i] || (str[i] != '\'' && str[i] != '\"'))
-		return i;
+		return (i);
 	start = str[i++];
 	end = i;
 	while (str[end] && str[end] != start)
@@ -70,11 +70,11 @@ int	scan_quote(const char *str, int i)
 
 bool	is_valid_quote(char *str, int *i)
 {
-	int next;
+	int	next;
 
 	next = scan_quote(str, *i);
 	if (next < 0)
-		return false;
+		return (false);
 	*i = next;
 	return (true);
 }

@@ -45,9 +45,6 @@ typedef enum e_toktype
 	TK_HEREDOC, // 6 <<
 	TK_APPEND,  // 7 >>
 	TK_PIPE,    // 8 |
-	// TK_AMPERSAND, //9 &
-	// TK_AND, //10 &&
-	// TK_OR, //11 ||
 }							t_toktype;
 
 typedef enum seg_type
