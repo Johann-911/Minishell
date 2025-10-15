@@ -6,12 +6,10 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 00:32:23 by klejdi            #+#    #+#             */
-/*   Updated: 2025/10/15 00:51:32 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/15 14:33:03 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
 #include "executor.h"
 #include "builtins.h"
 
@@ -94,9 +92,6 @@ int ft_echo(char **args)
         ft_putchar_fd('\n', STDOUT_FILENO);
     return (0);
 }
-
-#include <unistd.h>
-#include <stdio.h>
 
 int ft_pwd(char **args)
 {

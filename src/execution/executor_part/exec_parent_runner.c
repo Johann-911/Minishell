@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 13:14:57 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/15 00:58:47 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/15 20:25:10 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,7 @@
 static int setting_infile_and_outfile(t_cmd_node *cmd, int *io_data)
 {
 	int error_code;
-	// ...removed unused variable gc...
 
-	// ...removed assignment to undeclared variable gc...
 	error_code = 0;
 	if (io_data[0] != NO_REDIRECTION)
 	{

@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:43:35 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/15 00:58:49 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/15 20:05:35 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,21 @@ int setup_output_file(t_commandlist *cmd)
 	printf("[DEBUG] output redirection: opening '%s' with flags %d\n", last_output->filename, flags);
 	fd = gc_open(last_output->filename, flags, 0644);
 	return (fd);
+}
+
+// Redirections count starts here
+int count_input(t_commandlist *cmd)
+{
+	t_filelist *current;
+	int count;
+
+	count = 0;
+	current = cmd->files;
+	while (current != NULL)
+	{
+		if (current->type == INFILE || current->type == HEREDOC)
+			count++;
+		current = current->next;
+	}
+	return (count);
 }

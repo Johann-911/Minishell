@@ -6,28 +6,11 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:00:04 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/15 00:51:55 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/15 20:05:28 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
-
-// Redirections count starts here
-int count_input(t_commandlist *cmd)
-{
-	t_filelist *current;
-	int count;
-
-	count = 0;
-	current = cmd->files;
-	while (current != NULL)
-	{
-		if (current->type == INFILE || current->type == HEREDOC)
-			count++;
-		current = current->next;
-	}
-	return (count);
-}
 
 int count_output(t_commandlist *cmd)
 {
@@ -78,6 +61,7 @@ int setup_input_file(t_commandlist *cmd)
 	last_input = find_last_input(cmd, input_count);
 	if (last_input == NULL)
 		return (NO_REDIRECTION);
+	// Only handle input redirection here
 	fd = gc_open(last_input->filename, O_RDONLY, 0);
 	return (fd);
 }
