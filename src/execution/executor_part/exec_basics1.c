@@ -3,20 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   exec_basics1.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/01 17:08:24 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 18:24:42 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/11 17:58:00 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
 
-void	close_and_reset(int *prev_in_out, int *new_in_out, int *reset)
+void close_and_reset(int *prev_in_out, int *new_in_out, int *reset)
 {
-	t_gc	*gc;
-
-	gc = get_gc();
+	// Removed unused variable 'gc'
 	if (prev_in_out[0] != NO_REDIRECTION)
 	{
 		gc_close(prev_in_out[0]);

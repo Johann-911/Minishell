@@ -3,20 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   exec_basics.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 14:53:50 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 18:27:15 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/11 17:53:55 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
 
-void	dup_and_or_close(int *prev_in_out, int *new_in_out)
+void dup_and_or_close(int *prev_in_out, int *new_in_out)
 {
-	t_gc	*gc;
-
-	gc = get_gc();
+	// Removed unused variable 'gc'
 	if (prev_in_out[0] != NO_REDIRECTION)
 	{
 		gc_dup2(prev_in_out[0], STDIN_FILENO);
@@ -41,12 +39,10 @@ void	dup_and_or_close(int *prev_in_out, int *new_in_out)
 	}
 }
 
-int	infile_redirector(t_file_node *file_node)
+int infile_redirector(t_file_node *file_node)
 {
-	int		fd;
-	t_gc	*gc;
-
-	gc = get_gc();
+	int fd;
+	// Removed unused variable 'gc'
 	fd = gc_open(file_node->filename, O_RDONLY);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -59,12 +55,10 @@ int	infile_redirector(t_file_node *file_node)
 	return (0);
 }
 
-int	outfile_redirector(t_file_node *file_node)
+int outfile_redirector(t_file_node *file_node)
 {
-	int		fd;
-	t_gc	*gc;
-
-	gc = get_gc();
+	int fd;
+	// Removed unused and incorrectly typed gc variable
 	fd = gc_open(file_node->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -77,12 +71,10 @@ int	outfile_redirector(t_file_node *file_node)
 	return (0);
 }
 
-int	append_redirector(t_file_node *file_node)
+int append_redirector(t_file_node *file_node)
 {
-	int		fd;
-	t_gc	*gc;
-
-	gc = get_gc();
+	int fd;
+	// Removed unused and incorrectly typed gc variable
 	fd = gc_open(file_node->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -95,12 +87,11 @@ int	append_redirector(t_file_node *file_node)
 	return (0);
 }
 
-int	pipe_handler(t_cmd_node *command)
+int pipe_handler(t_cmd_node *command)
 {
-	t_gc	*gc;
-	int		pipefd[2];
+	// Removed unused and incorrectly typed gc variable
+	int pipefd[2];
 
-	gc = get_gc();
 	if (command->next)
 	{
 		if (gc_pipe(pipefd) < 0)
