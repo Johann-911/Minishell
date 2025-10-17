@@ -8,7 +8,7 @@ t_segment *create_segment(char *start, int len, t_seg_type type)
 	segment = gc_malloc(sizeof(*segment));
 	if(!segment)
 		return NULL;
-	segment->value = gc_substr(start, 0, len);
+	segment->value = gc_substr(start, 0, (size_t)len);
 	if(!segment->value)
 		return NULL;
 	segment->type = type;
@@ -35,19 +35,3 @@ int push_segment(t_segment_list *lst, t_segment *segment)
 	return (1);
 }
 
-
-// int add_segment(t_segment_list *lst, t_token *token)
-// {
-// 	char *segment;
-
-// 	if(!lst || !token || token->value)
-// 		return 0;
-// 	segment = break_segments(token);
-// 	if(!segment)
-// 		return 0;
-// 	push_segment(lst, segment);
-
-// 	return 0;
-
-
-// }
