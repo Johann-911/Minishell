@@ -14,7 +14,7 @@
 # define PARSER_H
 
 // Includes -- BEGIN
-// #include "minishell.h"
+#include "minishell.h"
 # include <stdio.h>
 // #include "executor.h"
 #include "parser.h"
@@ -45,9 +45,6 @@ typedef enum e_toktype
 	TK_HEREDOC, // 6 <<
 	TK_APPEND,  // 7 >>
 	TK_PIPE,    // 8 |
-	// TK_AMPERSAND, //9 &
-	// TK_AND, //10 &&
-	// TK_OR, //11 ||
 }							t_toktype;
 
 typedef enum seg_type
@@ -111,11 +108,20 @@ t_toktype red_type(const char *str, int i);
 int handle_quote(char *input, int *i);
 int handle_redir(t_token_list *lst, char *input, int *i, int red_len);
 int	word_end(char *input, int i);
+// token to command
+int find_segment(t_segment_list *lst, char *str);
+// static int quote_segment(t_segment_list *lst, char *str, int *i);
+// static int no_quote_segment(t_segment_list *lst, char *str, int *i);
+int push_segment(t_segment_list *lst, t_segment *segment);
+t_segment *create_segment(char *start, int len, t_seg_type type);
 
 //debug
 void    *gc_malloc(size_t size);
 char    *gc_substr(char *s, unsigned int start, size_t len);
 void print_tokens(const t_token_list *lst);
+void print_segment_list(const t_segment_list *list);
+void init_segment_lst(t_segment_list *lst);
+
 
 
 

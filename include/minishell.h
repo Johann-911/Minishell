@@ -14,8 +14,9 @@
 # define MINISHELL_H
 
 // Includes -- BEGIN
-# include "executor.h"
-# include "garbage_collector.h"
+// # include "executor.h"
+// # include "garbage_collector.h"
+#include "parser.h"
 # include "libft/libft.h"
 # include <dirent.h>
 # include <errno.h>
@@ -60,7 +61,7 @@ typedef struct s_cmd_list
 
 typedef struct s_env_node
 {
-	char						*type;
+	char						*key;
 	char						*value;
 	struct s_env_node			*next;
 }								t_env_node;
