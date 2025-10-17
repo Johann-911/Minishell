@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   garbage_collector_utils1.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 21:03:21 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 18:26:04 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/14 23:08:14 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "garbage_collector.h"
 
 // File descriptor utilities/helpers
-int	gc_open(const char *pathname, int flags, ...)
+int gc_open(const char *pathname, int flags, ...)
 {
-	int		fd;
-	mode_t	mode;
-	va_list	args;
+	int fd;
+	mode_t mode;
+	va_list args;
 
 	if (flags & O_CREAT)
 	{
 		va_start(args, flags);
-		mode = va_arg(args, mode_t);
+		mode = (mode_t)va_arg(args, int);
 		va_end(args);
 		fd = open(pathname, flags, mode);
 	}
@@ -34,7 +34,7 @@ int	gc_open(const char *pathname, int flags, ...)
 	return (fd);
 }
 
-int	gc_pipe(int pipefd[2])
+int gc_pipe(int pipefd[2])
 {
 	if (pipe(pipefd) == -1)
 		return (-1);
@@ -43,9 +43,9 @@ int	gc_pipe(int pipefd[2])
 	return (0);
 }
 
-int	gc_dup(int oldfd)
+int gc_dup(int oldfd)
 {
-	int	newfd;
+	int newfd;
 
 	newfd = dup(oldfd);
 	if (newfd < 0)
@@ -54,9 +54,9 @@ int	gc_dup(int oldfd)
 	return (newfd);
 }
 
-int	gc_dup2(int oldfd, int newfd)
+int gc_dup2(int oldfd, int newfd)
 {
-	int	result;
+	int result;
 
 	result = dup2(oldfd, newfd);
 	if (result < 0)
@@ -66,9 +66,9 @@ int	gc_dup2(int oldfd, int newfd)
 	return (result);
 }
 
-void	gc_register_fd(int fd)
+void gc_register_fd(int fd)
 {
 	if (fd < 0)
-		return ;
+		return;
 	gc_add_node(NULL, fd, GC_FD);
 }

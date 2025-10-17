@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   garbage_collector.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:08:39 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/06 17:36:38 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/14 23:06:10 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "garbage_collector.h"
 
-t_gc	*get_gc(void)
+t_gc *get_gc(void)
 {
-	static t_gc	gc = {0};
+	static t_gc gc = {0};
 
 	return (&gc);
 }
 
 // initializing gc
-t_gc	*gc_init(void)
+t_gc *gc_init(void)
 {
-	t_gc	*gc;
+	t_gc *gc;
 
 	gc = malloc(sizeof(t_gc));
 	if (!gc)
@@ -32,10 +32,10 @@ t_gc	*gc_init(void)
 	return (gc);
 }
 
-int	gc_add_node(void *ptr, int fd, t_gc_type type)
+int gc_add_node(void *ptr, int fd, t_gc_type type)
 {
-	t_gc		*gc;
-	t_gc_node	*new_node;
+	t_gc *gc;
+	t_gc_node *new_node;
 
 	gc = get_gc();
 	new_node = malloc(sizeof(t_gc_node));
@@ -51,9 +51,9 @@ int	gc_add_node(void *ptr, int fd, t_gc_type type)
 }
 
 // memory allocations Basics
-void	*gc_malloc(size_t size)
+void *gc_malloc(size_t size)
 {
-	void	*ptr;
+	void *ptr;
 
 	ptr = malloc(size);
 	if (!ptr)
@@ -65,11 +65,9 @@ void	*gc_malloc(size_t size)
 	}
 	return (ptr);
 }
-
-void	*gc_calloc(size_t count, size_t size)
+void *gc_calloc(size_t count, size_t size)
 {
-	void	*ptr;
-	t_gc	*gc;
+	void *ptr;
 
 	ptr = calloc(count, size);
 	if (!ptr)

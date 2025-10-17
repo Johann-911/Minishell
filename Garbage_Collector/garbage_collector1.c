@@ -3,25 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   garbage_collector1.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:39:30 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/07 17:54:29 by kskender         ###   ########.fr       */
+/*   Updated: 2025/10/15 00:00:08 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "garbage_collector.h"
 
 // Cleanup all allocated memory and close all registered fds
-void	gc_free(void *ptr)
+void gc_free(void *ptr)
 {
-	t_gc_node	*current;
-	t_gc_node	*prev;
-	t_gc		*gc;
+	t_gc_node *current;
+	t_gc_node *prev;
+	t_gc *gc;
 
 	gc = get_gc();
 	if (!gc || !ptr)
-		return ;
+		return;
 	current = gc->head;
 	prev = NULL;
 	while (current)
@@ -35,22 +35,22 @@ void	gc_free(void *ptr)
 			free(current->ptr);
 			free(current);
 			gc->count--;
-			return ;
+			return;
 		}
 		prev = current;
 		current = current->next;
 	}
 }
 
-void	gc_close(int fd)
+void gc_close(int fd)
 {
-	t_gc_node	*current;
-	t_gc_node	*prev;
-	t_gc		*gc;
+	t_gc_node *current;
+	t_gc_node *prev;
+	t_gc *gc;
 
 	gc = get_gc();
 	if (!gc || fd < 0)
-		return ;
+		return;
 	current = gc->head;
 	prev = NULL;
 	while (current)
@@ -64,7 +64,7 @@ void	gc_close(int fd)
 			close(current->fd);
 			free(current);
 			gc->count--;
-			return ;
+			return;
 		}
 		prev = current;
 		current = current->next;
@@ -72,15 +72,15 @@ void	gc_close(int fd)
 }
 
 // Cleanup everything
-void	gc_cleanup(void)
+void gc_cleanup(void)
 {
-	t_gc_node	*current;
-	t_gc_node	*next;
-	t_gc		*gc;
+	t_gc_node *current;
+	t_gc_node *next;
+	t_gc *gc;
 
 	gc = get_gc();
 	if (!gc)
-		return ;
+		return;
 	current = gc->head;
 	while (current)
 	{
@@ -96,17 +96,17 @@ void	gc_cleanup(void)
 }
 
 // Utility functions
-void	gc_print(void)
+void gc_print(void)
 {
-	t_gc_node	*current;
-	t_gc		*gc;
-	int			i;
+	t_gc_node *current;
+	t_gc *gc;
+	int i;
 
 	gc = get_gc();
 	if (!gc)
 	{
 		printf("GC is NULL\n");
-		return ;
+		return;
 	}
 	printf("GC has %zu items:\n", gc->count);
 	current = gc->head;
@@ -122,9 +122,10 @@ void	gc_print(void)
 	}
 }
 
-size_t	gc_count(t_gc *gc)
+size_t gc_count(void)
 {
+	t_gc *gc = get_gc();
 	if (!gc)
-		return (0);
-	return (gc->count);
+		return 0;
+	return gc->count;
 }
