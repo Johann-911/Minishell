@@ -49,3 +49,20 @@ void print_segment_list(const t_segment_list *list)
         s = s->next;
     }
 }
+void print_env_list(t_env_list *lst)
+{
+    t_env_node *n;
+
+    if (!lst)
+    {
+        printf("env list NULL\n");
+        return;
+    }
+    n = lst->head;
+    printf("Env list (size=%zd):\n", lst->size);
+    while (n)
+    {
+        printf("  %s=%s\n", n->key ? n->key : "(null)", n->value ? n->value : "(null)");
+        n = n->next;
+    }
+}
