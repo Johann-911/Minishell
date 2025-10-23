@@ -16,40 +16,26 @@
 #include "parser.h"
 #include "debug.h"
 
+char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
+        int last_status, int i);
+char	*segments_expand(t_segment_list *seglst, t_env_list *envlst, int last_status);
+
+char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
+        int last_status, int i);
 
 extern char **environ;
 
-/* Hilfs-Debug: env list ausgeben mit Adressen/Längen */
-static void print_env_list_debug(t_env_list *lst)
-{
-    t_env_node *n;
-    size_t idx = 0;
 
-    if (!lst)
-    {
-        printf("env list: (null)\n");
-        return;
-    }
-    printf("Env list (size=%zd):\n", lst->size);
-    n = lst->head;
-    while (n)
-    {
-        size_t klen = n->key ? ft_strlen(n->key) : 0;
-        size_t vlen = n->value ? ft_strlen(n->value) : 0;
-        printf("  [%02zu] key=\"%s\" (%p) len=%zu  value=\"%s\" (%p) len=%zu\n",
-               idx++,
-               n->key ? n->key : "(null)", (void*)n->key, klen,
-               n->value ? n->value : "(null)", (void*)n->value, vlen);
-        n = n->next;
-    }
-}
-
-/* Kleiner Test-Driver: tokens + segment debug (wie vorher) */
-static void test_input(char *line)
+static void	test_input(char *line, t_env_list *envlist, int last_status)
 {
+    t_token_list	lst;
+    t_token			*tok;
+    t_segment_list	segs;
+    t_segment		*seg;
+    char			*expanded;
+
     if (!line)
         return;
-
     printf("%s\n", line);
     if (!check_tokens(line, 0))
     {
@@ -57,59 +43,57 @@ static void test_input(char *line)
         return;
     }
     printf("[OK] %s\n", line);
-
-    t_token_list lst = {0};
     init_token_lst(&lst);
     if (!tokenize(&lst, line))
     {
         printf("tokenize failed\n");
         return;
     }
-
     print_tokens(&lst);
-
-    /* Für jedes WORD Token: Segmente bauen und ausgeben */
-    for (t_token *tok = lst.head; tok; tok = tok->next)
+    tok = lst.head;
+    while (tok)
     {
-        if (tok->type != TK_WORD)
-            continue;
-        t_segment_list segs = {0};
-        init_segment_lst(&segs);
-        if (!find_segment(&segs, tok->value))
+        if (tok->type == TK_WORD)
         {
-            printf("Segmentierung fehlgeschlagen für: \"%s\"\n", tok->value);
-            continue;
+            init_segment_lst(&segs);
+            if (!find_segment(&segs, tok->value))
+            {
+                printf("Segmentierung fehlgeschlagen für: \"%s\"\n", tok->value);
+                tok = tok->next;
+                continue;
+            }
+            printf("WORD: \"%s\"\n", tok->value);
+            print_segment_list(&segs);
+            /* Expansion pro Segment (ohne segments_expand) */
+            seg = segs.head;
+            while (seg)
+            {
+                expanded = expand_or_not(seg->value, seg->type, envlist, last_status, 0);
+                printf("Expanded seg: \"%s\"\n", expanded ? expanded : "(null)");
+                seg = seg->next;
+            }
         }
-        printf("WORD: \"%s\"\n", tok->value);
-        print_segment_list(&segs);
+        tok = tok->next;
     }
 }
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-    t_env_list envlist;
+    t_env_list	envlist;
+    int			last_status;
 
-    /* sichere Initialisierung der Liste bevor befüllt wird */
-    envlist.head = envlist.tail = NULL;
-    envlist.size = 0;
-
-    /* get_envs ausführen und debug-print */
+    last_status = 0;
     if (!get_envs(environ, &envlist))
     {
         fprintf(stderr, "get_envs failed\n");
-        return 1;
+        return (1);
     }
-    print_env_list_debug(&envlist);
-
-    /* optional: falls Kommandozeilenargumente vorhanden, teste diese und exit */
     if (argc > 1)
     {
         for (int i = 1; i < argc; ++i)
-            test_input(argv[i]);
-        return 0;
+            test_input(argv[i], &envlist, last_status);
+        return (0);
     }
-
-    /* REPL */
     while (1)
     {
         char *line = readline("911TurboS> ");
@@ -120,9 +104,8 @@ int main(int argc, char **argv)
         }
         if (*line)
             add_history(line);
-
-        test_input(line);
+        test_input(line, &envlist, last_status);
         free(line);
     }
-    return 0;
+    return (0);
 }
