@@ -66,3 +66,67 @@ void print_env_list(t_env_list *lst)
         n = n->next;
     }
 }
+// ...existing code...
+char	*gc_strjoin(const char *s1, const char *s2)
+{
+    if (!s1 || !s2)
+        return (NULL);
+    return (ft_strjoin((char *)s1, (char *)s2));
+}
+
+char	*gc_itoa(int n)
+{
+    long	nb;
+    size_t	len;
+    long	tmp;
+    char	*s;
+
+    nb = n;
+    len = (nb <= 0);
+    tmp = (nb < 0) ? -nb : nb;
+    while (tmp)
+    {
+        len++;
+        tmp /= 10;
+    }
+    s = gc_malloc(len + 1);
+    if (!s)
+        return (NULL);
+    s[len] = '\0';
+    if (nb == 0)
+        s[0] = '0';
+    if (nb < 0)
+    {
+        s[0] = '-';
+        nb = -nb;
+    }
+    while (nb)
+    {
+        s[--len] = '0' + (nb % 10);
+        nb /= 10;
+    }
+    return (s);
+}
+// ...existing code...
+char	*gc_strdup(const char *s)
+{
+    char	*dup;
+    size_t	len;
+
+    if (!s)
+        return (NULL);
+    len = ft_strlen(s);
+    dup = gc_malloc(len + 1);
+    if (!dup)
+        return (NULL);
+    ft_memcpy(dup, s, len);
+    dup[len] = '\0';
+    return (dup);
+}
+void	*gc_malloc(size_t size)
+{
+    void	*p;
+
+    p = malloc(size);
+    return (p);
+}

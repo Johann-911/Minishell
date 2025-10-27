@@ -82,6 +82,8 @@ int	main(int argc, char **argv)
     t_env_list	envlist;
     int			last_status;
 
+    init_env_lst(&envlist);
+
     last_status = 0;
     if (!get_envs(environ, &envlist))
     {
