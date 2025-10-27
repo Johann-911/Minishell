@@ -6,18 +6,12 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/16 17:28:28 by klejdi            #+#    #+#             */
-/*   Updated: 2025/10/16 17:29:29 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/23 22:05:21 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
 #include "builtins.h"
-
-/* ************************************************************************** */
-/*                                                                            */
-/*   exec_redir_outfile.c - outfile redirection helpers (42 norm compliant)    */
-/*                                                                            */
-/* ************************************************************************** */
 
 // Counts outfile/append redirections
 int count_outfile(t_commandlist *cmd)

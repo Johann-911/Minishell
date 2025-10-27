@@ -6,14 +6,20 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/16 17:34:28 by klejdi            #+#    #+#             */
-/*   Updated: 2025/10/16 17:43:33 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/24 16:03:39 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "executor.h"
 #include "builtins.h"
+/* forward declarations for static helpers defined below */
+static int create_pipes(int pipes[64][2], int ncmds);
+static int spawn_pipeline_children(char ***cmds, int ncmds, char **envp, int pipes[64][2], pid_t pids[64]);
+static void setup_child_io_and_exec(int idx, int ncmds, int pipes[64][2], int in_fd, int out_fd, char **cmd, char **envp);
+static void close_all_pipes(int pipes[64][2], int ncmds);
+static int wait_children(pid_t pids[64], int ncmds);
 // Searches $PATH for executable
-static char *find_in_path(char *cmd, char **envp)
+static char *find_in_path(char *cmd)
 {
     char *path = getenv("PATH");
     char *dirs[64];
@@ -29,28 +35,15 @@ static char *find_in_path(char *cmd, char **envp)
         p = strtok(NULL, ":");
     }
     dirs[i] = NULL;
-    for (int j = 0; dirs[j]; j++)
+    int j = 0;
+    while (dirs[j])
     {
         snprintf(fullpath, sizeof(fullpath), "%s/%s", dirs[j], cmd);
         if (access(fullpath, X_OK) == 0)
             return (fullpath);
+        j++;
     }
     return (cmd);
-}
-
-// Sets up infile and outfile redirections
-static void setup_redirections(int in_fd, int out_fd)
-{
-    if (in_fd != -1)
-    {
-        dup2(in_fd, STDIN_FILENO);
-        close(in_fd);
-    }
-    if (out_fd != -1)
-    {
-        dup2(out_fd, STDOUT_FILENO);
-        close(out_fd);
-    }
 }
 
 // Convert environment list to char ** array for execve
@@ -80,61 +73,123 @@ char **convert_env_to_array(t_env_list *env_list)
     return (env_array);
 }
 
-// Executes external command (fork, execve, error handling)
-int exec_external(char **args, int in_fd, int out_fd, char **envp)
+// Executes external command (execve in current process)
+void exec_external(char **args, char **envp)
 {
-    pid_t pid = fork();
-    if (pid == 0)
-    {
-        setup_redirections(in_fd, out_fd);
-        char *exec_path = find_in_path(args[0], envp);
-        execve(exec_path, args, envp);
-        fprintf(stderr, "%s: command not found\n", args[0]);
-        _exit(127);
-    }
-    if (in_fd != -1)
-        close(in_fd);
-    if (out_fd != -1)
-        close(out_fd);
-    if (pid > 0)
-    {
-        int status;
-        waitpid(pid, &status, 0);
-        return (WEXITSTATUS(status));
-    }
-    perror("fork");
-    return (1);
+    char *exec_path;
+
+    exec_path = find_in_path(args[0]);
+    execve(exec_path, args, envp);
 }
 
 // Sets up and runs a simple pipeline (cmd1 | cmd2)
-int exec_pipeline(char **cmd1_args, char **cmd2_args, char **envp)
+int exec_pipeline(char ***cmds, int ncmds, char **envp)
 {
-    int pipefd[2];
-    pid_t pid1, pid2;
-    pipe(pipefd);
-    pid1 = fork();
-    if (pid1 == 0)
+    int pipes[64][2];
+    pid_t pids[64];
+
+    if (ncmds <= 0)
+        return (1);
+    if (create_pipes(pipes, ncmds) != 0)
+        return (1);
+    if (spawn_pipeline_children(cmds, ncmds, envp, pipes, pids) != 0)
     {
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[0]);
-        close(pipefd[1]);
-        execve(cmd1_args[0], cmd1_args, envp);
-        _exit(127);
+        close_all_pipes(pipes, ncmds);
+        return (1);
     }
-    pid2 = fork();
-    if (pid2 == 0)
+    close_all_pipes(pipes, ncmds);
+    return wait_children(pids, ncmds);
+}
+
+static int create_pipes(int pipes[64][2], int ncmds)
+{
+    int i;
+
+    i = 0;
+    while (i < ncmds - 1)
     {
-        dup2(pipefd[0], STDIN_FILENO);
-        close(pipefd[1]);
-        close(pipefd[0]);
-        execve(cmd2_args[0], cmd2_args, envp);
-        _exit(127);
+        if (pipe(pipes[i]) == -1)
+            return (1);
+        i++;
     }
-    close(pipefd[0]);
-    close(pipefd[1]);
-    waitpid(pid1, NULL, 0);
-    waitpid(pid2, NULL, 0);
-    return 0;
+    return (0);
+}
+
+static int spawn_pipeline_children(char ***cmds, int ncmds, char **envp, int pipes[64][2], pid_t pids[64])
+{
+    int i;
+
+    i = 0;
+    while (i < ncmds)
+    {
+        int in_fd = -1, out_fd = -1;
+        if (setup_redirections(cmds[i], &in_fd, &out_fd))
+            return (1);
+        pids[i] = fork();
+        if (pids[i] == 0)
+        {
+            setup_child_io_and_exec(i, ncmds, pipes, in_fd, out_fd, cmds[i], envp);
+        }
+        if (in_fd != -1)
+            close(in_fd);
+        if (out_fd != -1)
+            close(out_fd);
+        i++;
+    }
+    return (0);
+}
+
+static void setup_child_io_and_exec(int idx, int ncmds, int pipes[64][2], int in_fd, int out_fd, char **cmd, char **envp)
+{
+    int j;
+
+    if (idx > 0)
+        dup2(pipes[idx - 1][0], STDIN_FILENO);
+    if (in_fd != -1)
+        dup2(in_fd, STDIN_FILENO);
+    if (idx < ncmds - 1)
+        dup2(pipes[idx][1], STDOUT_FILENO);
+    if (out_fd != -1)
+        dup2(out_fd, STDOUT_FILENO);
+    j = 0;
+    while (j < ncmds - 1)
+    {
+        close(pipes[j][0]);
+        close(pipes[j][1]);
+        j++;
+    }
+    exec_external(cmd, envp);
+    _exit(127);
+}
+
+static void close_all_pipes(int pipes[64][2], int ncmds)
+{
+    int i;
+
+    i = 0;
+    while (i < ncmds - 1)
+    {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
+        i++;
+    }
+}
+
+static int wait_children(pid_t pids[64], int ncmds)
+{
+    int i;
+    int status;
+
+    status = 0;
+    i = 0;
+    while (i < ncmds)
+    {
+        waitpid(pids[i], &status, 0);
+        i++;
+    }
+    if (WIFEXITED(status))
+        return WEXITSTATUS(status);
+    return 128;
 }
 
 // Sets up redirections for builtins and runs them
@@ -165,13 +220,18 @@ int exec_heredoc(const char *delimiter)
 {
     char buffer[1024];
     int pipefd[2];
-    pipe(pipefd);
-    while (fgets(buffer, sizeof(buffer), stdin))
+
+    if (pipe(pipefd) == -1)
+        return (-1);
+    while (1)
     {
+        if (!fgets(buffer, sizeof(buffer), stdin))
+            break;
+        /* line ends with newline from fgets */
         if (strncmp(buffer, delimiter, strlen(delimiter)) == 0 && buffer[strlen(delimiter)] == '\n')
             break;
         write(pipefd[1], buffer, strlen(buffer));
     }
     close(pipefd[1]);
-    return pipefd[0]; // Return read end for use as infile
+    return (pipefd[0]); /* read end */
 }
