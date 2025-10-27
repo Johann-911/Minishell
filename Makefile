@@ -8,15 +8,18 @@ INCS        := $(addprefix -I, $(INC_DIRS))
 
 LIBFT_DIR   := include/libft
 LIBFT       := $(LIBFT_DIR)/libft.a
-
-LDFLAGS     := -L$(LIBFT_DIR) -lft -lreadline -lncurses
+LDFLAGS     := -L$(LIBFT_DIR) -lft
+RL_LIBS     := -lreadline -lncurses
 
 OBJ_DIR     := _obj
 RM          := rm -rf
 
-# Quellen
+# Verwende '>' als Rezept-Prefix statt TAB
+.RECIPEPREFIX := >
+
+# Nur fürs Hauptprojekt (unverändert, kannst du später pflegen)
 MINI_SRCS := \
-    main.c \
+    src/execution/main.c \
     src/execution/redirections.c \
 	Garbage_Collector/garbage_collector.c \
     src/parsing/token_check.c \
@@ -24,44 +27,49 @@ MINI_SRCS := \
     src/parsing/token_to_cmd.c \
     src/parsing/debug.c
 
+# Parse-Test: nur Lexing-Dateien (ohne token_to_cmd)
 PARSER_SRCS := \
-    src/parsing/main.c \
-    src/parsing/token_check.c \
-    src/parsing/token_utils.c \
-    src/parsing/token_to_cmd.c \
-    src/parsing/debug.c \
-    src/parsing/test_stubs.c
+    src/parsing/lexing/main.c \
+    src/parsing/lexing/token_check.c \
+    src/parsing/lexing/token_utils.c \
+    src/parsing/lexing/tokenize.c \
+    src/parsing/lexing/tokenize_helper.c \
+    src/parsing/lexing/debug.c \
+    src/parsing/lexing/init.c \
+    src/parsing/command/find_token.c \
+    src/parsing/command/token_to_cmd.c \
+    src/parsing/command/add_env.c \
+    src/parsing/command/expand_env.c \
+        src/parsing/lexing/gc_substr_shim.c
 
-# Objekte
+#         Garbage_Collector/garbage_collector1.c \
+#     Garbage_Collector/garbage_collector_utils.c
+
 MINI_OBJS   := $(MINI_SRCS:%.c=$(OBJ_DIR)/%.o)
 PARSER_OBJS := $(PARSER_SRCS:%.c=$(OBJ_DIR)/%.o)
 
-# Default
 all: $(NAME)
 
-# Binaries
 $(NAME): $(LIBFT) $(MINI_OBJS)
-	@$(CC) $(CFLAGS) $(MINI_OBJS) -o $@ $(LDFLAGS)
+>@$(CC) $(CFLAGS) $(MINI_OBJS) -o $@ $(LDFLAGS)
 
 $(PARSER_BIN): $(LIBFT) $(PARSER_OBJS)
-	@$(CC) $(CFLAGS) $(PARSER_OBJS) -o $@ $(LDFLAGS)
+>$(CC) $(CFLAGS) $(PARSER_OBJS) -o $@ $(LDFLAGS) $(RL_LIBS)
 
-# Libft
 $(LIBFT):
-	@$(MAKE) -C $(LIBFT_DIR)
+>@$(MAKE) -C $(LIBFT_DIR)
 
-# Compile rule
 $(OBJ_DIR)/%.o: %.c
-	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+>@mkdir -p $(@D)
+>@$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 clean:
-	@$(RM) -r $(OBJ_DIR)
-	@$(MAKE) -C $(LIBFT_DIR) clean
+>@$(RM) -r $(OBJ_DIR)
+>@$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	@$(RM) $(NAME) $(PARSER_BIN)
-	@$(MAKE) -C $(LIBFT_DIR) fclean
+>@$(RM) $(NAME) $(PARSER_BIN)
+>@$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 

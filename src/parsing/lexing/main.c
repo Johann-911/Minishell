@@ -15,50 +15,99 @@
 #include <readline/history.h>
 #include "parser.h"
 #include "debug.h"
-static void test_input(char *s)
+
+char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
+        int last_status, int i);
+char	*segments_expand(t_segment_list *seglst, t_env_list *envlst, int last_status);
+
+char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
+        int last_status, int i);
+
+extern char **environ;
+
+
+static void	test_input(char *line, t_env_list *envlist, int last_status)
 {
-    int ok = check_tokens(s, 0);
-    printf("[%s] %s\n", ok ? "OK" : "ERR", s);
-    if (!ok) return;
+    t_token_list	lst;
+    t_token			*tok;
+    t_segment_list	segs;
+    t_segment		*seg;
+    char			*expanded;
 
-    t_token_list lst = (t_token_list){0};
-    if (tokenize(&lst, s)) {
-        print_tokens(&lst);
-
-        // Segmente pro WORD-Token anzeigen
-        for (t_token *t = lst.head; t; t = t->next) {
-            if (t->type != TK_WORD) continue;
-            t_segment_list segs;
+    if (!line)
+        return;
+    printf("%s\n", line);
+    if (!check_tokens(line, 0))
+    {
+        printf("[ERR] %s\n", line);
+        return;
+    }
+    printf("[OK] %s\n", line);
+    init_token_lst(&lst);
+    if (!tokenize(&lst, line))
+    {
+        printf("tokenize failed\n");
+        return;
+    }
+    print_tokens(&lst);
+    tok = lst.head;
+    while (tok)
+    {
+        if (tok->type == TK_WORD)
+        {
             init_segment_lst(&segs);
-            if (find_segment(&segs, t->value)) {
-                printf("WORD: \"%s\"\n", t->value);
-                print_segment_list(&segs);
-            } else {
-                printf("Segmentierung fehlgeschlagen für: \"%s\"\n", t->value);
+            if (!find_segment(&segs, tok->value))
+            {
+                printf("Segmentierung fehlgeschlagen für: \"%s\"\n", tok->value);
+                tok = tok->next;
+                continue;
+            }
+            printf("WORD: \"%s\"\n", tok->value);
+            print_segment_list(&segs);
+            /* Expansion pro Segment (ohne segments_expand) */
+            seg = segs.head;
+            while (seg)
+            {
+                expanded = expand_or_not(seg->value, seg->type, envlist, last_status, 0);
+                printf("Expanded seg: \"%s\"\n", expanded ? expanded : "(null)");
+                seg = seg->next;
             }
         }
+        tok = tok->next;
     }
 }
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-    if (argc > 1) {
-        for (int i = 1; i < argc; i++)
-            test_input(argv[i]);
-        return 0;
-    }
+    t_env_list	envlist;
+    int			last_status;
 
-    while (1) {
+    init_env_lst(&envlist);
+
+    last_status = 0;
+    if (!get_envs(environ, &envlist))
+    {
+        fprintf(stderr, "get_envs failed\n");
+        return (1);
+    }
+    if (argc > 1)
+    {
+        for (int i = 1; i < argc; ++i)
+            test_input(argv[i], &envlist, last_status);
+        return (0);
+    }
+    while (1)
+    {
         char *line = readline("911TurboS> ");
-        if (!line) {           // CTRL-D
+        if (!line)
+        {
             printf("exit\n");
             break;
         }
-        if (*line)             // nicht-leere Eingaben in History
+        if (*line)
             add_history(line);
-
-        test_input(line);
+        test_input(line, &envlist, last_status);
         free(line);
     }
-    return 0;
+    return (0);
 }

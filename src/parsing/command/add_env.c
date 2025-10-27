@@ -26,7 +26,7 @@ int find_value(char *str, t_env_node *env)
 
 	if(!str || !env)
 		return 0; 	
-	eq = ft_strrchr(env, '=');
+	eq = ft_strchr(str, '=');
 	if(!eq)
 	{
 		env->value = gc_substr("", 0, 0);
@@ -34,8 +34,8 @@ int find_value(char *str, t_env_node *env)
 			return 0;
 		return 1;
 	}
-	val_len = ft_strlen(eq - str + 1);
-	env->value = gc_substr(str, eq - str, val_len);
+	val_len = ft_strlen(eq + 1);
+	env->value = gc_substr(str, (unsigned int) (eq - str + 1), val_len);
 	if(!env->value)
 		return 0;
 	return 1;	
@@ -83,7 +83,4 @@ int get_envs(char **env, t_env_list *lst)
 	}
 	return 1;
 }
-
-
-
 
