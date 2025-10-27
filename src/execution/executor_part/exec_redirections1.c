@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:43:35 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/15 20:05:35 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/24 16:03:41 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ int setup_output_file(t_commandlist *cmd)
 		flags |= O_TRUNC;
 	else if (last_output->type == OUTFILE_APPEND)
 		flags |= O_APPEND;
-	printf("[DEBUG] output redirection: opening '%s' with flags %d\n", last_output->filename, flags);
 	fd = gc_open(last_output->filename, flags, 0644);
 	return (fd);
 }

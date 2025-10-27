@@ -16,7 +16,7 @@ RM          := rm -rf
 
 # Quellen
 MINI_SRCS := \
-    src/execution/main.c \
+    main.c \
     src/execution/redirections.c \
 	Garbage_Collector/garbage_collector.c \
     src/parsing/token_check.c \

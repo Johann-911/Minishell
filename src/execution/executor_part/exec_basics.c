@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 14:53:50 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/11 17:53:55 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/17 16:11:24 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 void dup_and_or_close(int *prev_in_out, int *new_in_out)
 {
-	// Removed unused variable 'gc'
 	if (prev_in_out[0] != NO_REDIRECTION)
 	{
 		gc_dup2(prev_in_out[0], STDIN_FILENO);
@@ -42,7 +41,6 @@ void dup_and_or_close(int *prev_in_out, int *new_in_out)
 int infile_redirector(t_file_node *file_node)
 {
 	int fd;
-	// Removed unused variable 'gc'
 	fd = gc_open(file_node->filename, O_RDONLY);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -58,7 +56,6 @@ int infile_redirector(t_file_node *file_node)
 int outfile_redirector(t_file_node *file_node)
 {
 	int fd;
-	// Removed unused and incorrectly typed gc variable
 	fd = gc_open(file_node->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -74,7 +71,6 @@ int outfile_redirector(t_file_node *file_node)
 int append_redirector(t_file_node *file_node)
 {
 	int fd;
-	// Removed unused and incorrectly typed gc variable
 	fd = gc_open(file_node->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 		return (perror(file_node->filename), -1);
@@ -89,7 +85,6 @@ int append_redirector(t_file_node *file_node)
 
 int pipe_handler(t_cmd_node *command)
 {
-	// Removed unused and incorrectly typed gc variable
 	int pipefd[2];
 
 	if (command->next)

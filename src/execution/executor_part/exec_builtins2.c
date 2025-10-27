@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:31:20 by klejdi            #+#    #+#             */
-/*   Updated: 2025/10/15 19:51:00 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/10/17 17:15:32 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,39 +68,6 @@ static int is_in_exported(const char *name)
         i++;
     }
     return 0;
-}
-
-/*
-** Prints all exported environment variables in bash format
-*/
-// Prints all exported environment variables in bash format (<=25 lines)
-static void print_exported_env(void)
-{
-    extern char **environ;
-    int i = 0;
-    char *eq;
-    // Print all environment variables
-    while (environ[i])
-    {
-        eq = strchr(environ[i], '=');
-        if (eq)
-        {
-            *eq = '\0';
-            printf("declare -x %s=\"%s\"\n", environ[i], eq + 1);
-            *eq = '=';
-        }
-        else
-            printf("declare -x %s\n", environ[i]);
-        i++;
-    }
-    // Print exported-but-unset variables
-    int j = 0;
-    while (j < g_shell.exported_count)
-    {
-        if (!getenv(g_shell.exported_vars[j]))
-            printf("declare -x %s\n", g_shell.exported_vars[j]);
-        j++;
-    }
 }
 
 /*

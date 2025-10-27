@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_utility_to_run.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/07 13:12:19 by kskender          #+#    #+#             */
+/*   Updated: 2025/10/22 19:35:09 by klejdi           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "executor.h"
 #include <stdio.h>
@@ -5,32 +16,25 @@
 // Stub for not_error_file
 int not_error_file(t_filelist *current, int update, t_commandlist *cmd)
 {
-	(void)current;
-	(void)update;
 	(void)cmd;
-	fprintf(stderr, "not_error_file called\n");
-	return -1;
+	if (current && current->filename)
+		fprintf(stderr, "%s: No such file or directory\n", current->filename);
+	else
+		fprintf(stderr, "input file error\n");
+	(void)update;
+	return (-1);
 }
 
 // Stub for standard_error
 int standard_error(int update, t_commandlist *cmd)
 {
-	(void)update;
 	(void)cmd;
-	fprintf(stderr, "standard_error called\n");
-	return -1;
+	if (update)
+		fprintf(stderr, "redirection/setup error\n");
+	else
+		fprintf(stderr, "error\n");
+	return (-1);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   exec_utility_to_run.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/07 13:12:19 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/07 13:43:44 by kskender         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "executor.h"
 
