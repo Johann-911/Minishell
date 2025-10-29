@@ -31,9 +31,9 @@ int handle_quote(char *input, int *i)
 		return 0;
 	next = scan_quote(input, *i);
 	if(next < 0)
-		return 0;
+		return 1;
 	*i = next;
-	return 1;
+	return 0;
 }
 
 int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
@@ -43,32 +43,32 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 	int end;
 
 	if(!red_len)
-		return 0;
+		return 1;
 	if(!add_token(lst, red_type(input, *i), input + *i, red_len))
-		return 0;
+		return 1;
 	*i += red_len;
 	*i = skip_spaces(input, *i);
 	 if (!input[*i] || input[*i] == '|' || input[*i] == '<' || input[*i] == '>')
-        return 0;
+        return 1;
 	if(input[*i] == '\'' || input[*i] == '\"')
 	{
 		start = *i;
 		next = scan_quote(input, *i);
 		if(next < 0)
-			return 0;
+			return 1;
 		if(!add_token (lst, TK_WORD, input + start, next - start))
-			return 0;
+			return 1;
 		*i = next;
-		return 1;
+		return 0;
 	}
 	start = *i;
 	end = word_end(input, *i);
 	if(end <= start)
-		return 0;
+		return 1;
 	if(!add_token(lst, TK_WORD, input + start, end - start))
-		return 0;
+		return 1;
 	*i = end;
-	return 1;
+	return 0;
 }
 
 int	word_end(char *input, int i)
@@ -87,6 +87,6 @@ int	word_end(char *input, int i)
 		}
 		else
 			i++;
-	}    
+	}
 	return (i);
 }

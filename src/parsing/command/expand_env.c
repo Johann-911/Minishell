@@ -88,14 +88,6 @@ char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
 	return (new);
 }
 
-char	*get_expand(char *seg_str, int i, int last_status, t_env_list *envlst)
-{
-	if (seg_str[i + 1] == '?')
-		return (gc_itoa(last_status));
-	else
-		return (expand_env(seg_str + i, envlst));
-}
-
 char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
 		int last_status)
 {

@@ -25,89 +25,67 @@ char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
 
 extern char **environ;
 
-
-static void	test_input(char *line, t_env_list *envlist, int last_status)
+static void print_words_and_segments(t_token_list *lst, t_env_list *envlst, int last_status)
 {
-    t_token_list	lst;
-    t_token			*tok;
-    t_segment_list	segs;
-    t_segment		*seg;
-    char			*expanded;
+    t_token         *tk;
+    t_segment_list  segs;
+    char            *expanded;
 
-    if (!line)
-        return;
-    printf("%s\n", line);
-    if (!check_tokens(line, 0))
+    tk = lst->head;
+    while (tk)
     {
-        printf("[ERR] %s\n", line);
-        return;
-    }
-    printf("[OK] %s\n", line);
-    init_token_lst(&lst);
-    if (!tokenize(&lst, line))
-    {
-        printf("tokenize failed\n");
-        return;
-    }
-    print_tokens(&lst);
-    tok = lst.head;
-    while (tok)
-    {
-        if (tok->type == TK_WORD)
+        if (tk->type == TK_WORD)
         {
+            printf("WORD: \"%s\"\n", tk->value);
             init_segment_lst(&segs);
-            if (!find_segment(&segs, tok->value))
+            if (find_segment(&segs, tk->value))
             {
-                printf("Segmentierung fehlgeschlagen für: \"%s\"\n", tok->value);
-                tok = tok->next;
-                continue;
-            }
-            printf("WORD: \"%s\"\n", tok->value);
-            print_segment_list(&segs);
-            /* Expansion pro Segment (ohne segments_expand) */
-            seg = segs.head;
-            while (seg)
-            {
-                expanded = expand_or_not(seg->value, seg->type, envlist, last_status, 0);
-                printf("Expanded seg: \"%s\"\n", expanded ? expanded : "(null)");
-                seg = seg->next;
+                print_segment_list(&segs);
+                expanded = segments_expand(&segs, envlst, last_status);
+                printf("Expanded word: \"%s\"\n", expanded ? expanded : "(null)");
             }
         }
-        tok = tok->next;
+        tk = tk->next;
     }
 }
 
-int	main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
-    t_env_list	envlist;
-    int			last_status;
+    t_env_list   envlst;    // lokale Structs, keine Pointer
+    t_token_list toklst;    // lokale Structs, keine Pointer
+    char         *line;
+    int          last_status;
 
-    init_env_lst(&envlist);
+    (void)argc; (void)argv;
 
+    init_env_lst(&envlst);
+    get_envs(envp, &envlst);
     last_status = 0;
-    if (!get_envs(environ, &envlist))
+
+    while ((line = readline("911TurboS> ")))
     {
-        fprintf(stderr, "get_envs failed\n");
-        return (1);
-    }
-    if (argc > 1)
-    {
-        for (int i = 1; i < argc; ++i)
-            test_input(argv[i], &envlist, last_status);
-        return (0);
-    }
-    while (1)
-    {
-        char *line = readline("911TurboS> ");
-        if (!line)
-        {
-            printf("exit\n");
-            break;
-        }
-        if (*line)
-            add_history(line);
-        test_input(line, &envlist, last_status);
+        if (*line) add_history(line);
+
+        int ret;
+
+        init_token_lst(&toklst);
+        ret = tokenize(&toklst, line);
+
+        printf("%s\n", line);
+        printf("tokenize() ret = %d\n", ret);
+
+        printf("Tokens (before):\n");
+        print_tokens(&toklst);
+
+        print_words_and_segments(&toklst, &envlst, last_status);
+
+        // Rufe final_token immer auf, damit du den Effekt siehst
+        final_token(&toklst, &envlst, last_status);
+
+        printf("Final tokens:\n");
+        print_tokens(&toklst);
+
         free(line);
     }
-    return (0);
+    return 0;
 }
