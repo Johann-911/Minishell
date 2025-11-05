@@ -17,7 +17,7 @@
 #include "minishell.h"
 # include <stdio.h>
 // #include "executor.h"
-#include "parser.h"
+
 #include <aio.h>
 // #include "executor.h"
 # include <readline/history.h>
@@ -37,7 +37,7 @@ typedef struct s_env_list	t_env_list;
 typedef enum e_toktype
 {
 	TK_WORD,    // 0
-	TK_BUILTIN, // 1
+	TK_BUILTIN, // 1xxe
 	S_QUOTES,   // 2 ''
 	D_QUOTES,   // 3 ""
 	TK_INFILE,  // 4 <
@@ -112,15 +112,49 @@ int	word_end(char *input, int i);
 int find_segment(t_segment_list *lst, char *str);
 // static int quote_segment(t_segment_list *lst, char *str, int *i);
 // static int no_quote_segment(t_segment_list *lst, char *str, int *i);
+char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
+		int last_status);
 int push_segment(t_segment_list *lst, t_segment *segment);
 t_segment *create_segment(char *start, int len, t_seg_type type);
+void	final_token(t_token_list *toklst, t_env_list *envlst, int last_status);
+char	*look_for_cmd(t_token *token, t_token_list *toklst, t_cmd_list *cmdlst);
+char	**create_array(t_token *token, t_cmd_node *cmdnode, int i);
+int	count_args(t_token *token);
+bool	is_redirection(t_toktype t);
+bool is_built_in(char *str);
+int collect_redirs(t_token *token, t_cmd_node *cmdnode);
 
+//create
+t_cmd_node	*create_cmdnode(void);
+void create_filenode(char *str, int red_type, t_file_list *filelst);
+void	push_cmd(t_cmd_list *lst, t_cmd_node *node);
+void	push_file(t_file_list *lst, t_file_node *node);
+
+//env node adding and lst adding
+int find_key(char *str, t_env_node *env);
+int find_value(char *str, t_env_node *env);
+int push_env(t_env_list *lst, t_env_node *env);
+int get_envs(char **env, t_env_list *lst);
+char	*expand_env(char *str, t_env_list *env_lst);
+char *get_expand(char *seg_str, int i, int last_status, t_env_list *envlst);
+
+
+//initializing
+void init_env_lst(t_env_list *lst);
+void	init_token_lst(t_token_list *lst);
+void init_segment_lst(t_segment_list *lst);
 //debug
 void    *gc_malloc(size_t size);
 char    *gc_substr(char *s, unsigned int start, size_t len);
 void print_tokens(const t_token_list *lst);
 void print_segment_list(const t_segment_list *list);
 void init_segment_lst(t_segment_list *lst);
+void print_env_list_debug(t_env_list *lst);
+char	*gc_strdup(const char *s);
+char	*gc_strndup(const char *s, size_t n);
+char	**gc_split(const char *s, char c);
+char	*gc_strjoin(const char *s1, const char *s2);
+char	*gc_itoa(int n);
 
 
 

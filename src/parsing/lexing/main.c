@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "minishell.h"
 #include "parser.h"
 #include "debug.h"
 
@@ -23,91 +24,139 @@ char	*segments_expand(t_segment_list *seglst, t_env_list *envlst, int last_statu
 char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
         int last_status, int i);
 
-extern char **environ;
-
-
-static void	test_input(char *line, t_env_list *envlist, int last_status)
+static const char	*redir_name(t_toktype t)
 {
-    t_token_list	lst;
-    t_token			*tok;
-    t_segment_list	segs;
-    t_segment		*seg;
-    char			*expanded;
+    if (t == TK_INFILE)
+        return ("<");
+    if (t == TK_OUTFILE)
+        return (">");
+    if (t == TK_APPEND)
+        return (">>");
+    if (t == TK_HEREDOC)
+        return ("<<");
+    return ("?");
+}
 
-    if (!line)
-        return;
-    printf("%s\n", line);
-    if (!check_tokens(line, 0))
+static void	print_cmd_node(t_cmd_node *node, int idx)
+{
+    int			i;
+    t_file_node	*f;
+
+    printf("Command #%02d:\n", idx);
+    printf("  argv:");
+    if (!node->cmd || !node->cmd[0])
+        printf(" (empty)\n");
+    else
     {
-        printf("[ERR] %s\n", line);
-        return;
-    }
-    printf("[OK] %s\n", line);
-    init_token_lst(&lst);
-    if (!tokenize(&lst, line))
-    {
-        printf("tokenize failed\n");
-        return;
-    }
-    print_tokens(&lst);
-    tok = lst.head;
-    while (tok)
-    {
-        if (tok->type == TK_WORD)
+        i = 0;
+        while (node->cmd[i])
         {
-            init_segment_lst(&segs);
-            if (!find_segment(&segs, tok->value))
-            {
-                printf("Segmentierung fehlgeschlagen für: \"%s\"\n", tok->value);
-                tok = tok->next;
-                continue;
-            }
-            printf("WORD: \"%s\"\n", tok->value);
-            print_segment_list(&segs);
-            /* Expansion pro Segment (ohne segments_expand) */
-            seg = segs.head;
-            while (seg)
-            {
-                expanded = expand_or_not(seg->value, seg->type, envlist, last_status, 0);
-                printf("Expanded seg: \"%s\"\n", expanded ? expanded : "(null)");
-                seg = seg->next;
-            }
+            printf(" [%02d] \"%s\"", i, node->cmd[i]);
+            i++;
         }
-        tok = tok->next;
+        printf("\n");
+    }
+    printf("  redirs (%zu):", node->files ? node->files->size : 0);
+    f = node->files ? node->files->head : NULL;
+    if (!f)
+        printf(" (none)\n");
+    else
+    {
+        printf("\n");
+        while (f)
+        {
+            printf("    - %s %s\n", redir_name(f->redir_type),
+                f->filename ? f->filename : "(null)");
+            f = f->next;
+        }
+    }
+    if (node->cmd && node->cmd[0])
+    {
+        if (node->cmd_type == BUILTIN)
+            printf("  type: BUILTIN\n");
+        else
+            printf("  type: CMD\n");
     }
 }
 
-int	main(int argc, char **argv)
+static void	print_cmd_list(t_cmd_list *lst)
 {
-    t_env_list	envlist;
+    t_cmd_node	*cur;
+    int			idx;
+
+    if (!lst)
+    {
+        printf("Cmd list: (null)\n");
+        return ;
+    }
+    printf("Cmd list (size=%zu, syntax_error=%d):\n",
+        lst->size, lst->syntax_error);
+    if (lst->syntax_error)
+    {
+        printf("  ❌ Syntax error detected!\n");
+        return ;
+    }
+    cur = lst->head;
+    idx = 0;
+    while (cur)
+    {
+        print_cmd_node(cur, idx);
+        cur = cur->next;
+        idx++;
+    }
+}
+
+static void	process_line(char *line, t_env_list *envlst, int last_status)
+{
+    t_token_list	toklst;
+    t_cmd_list		cmdlst;
+
+    if (!check_tokens(line, 0))
+    {
+        printf("❌ Syntax error\n");
+        return ;
+    }
+    init_token_lst(&toklst);
+    if (tokenize(&toklst, line) != 0)
+    {
+        printf("❌ Tokenization failed\n");
+        return ;
+    }
+    final_token(&toklst, envlst, last_status);
+    cmdlst.head = NULL;
+    cmdlst.tail = NULL;
+    cmdlst.size = 0;
+    cmdlst.syntax_error = 0;
+    look_for_cmd(toklst.head, &toklst, &cmdlst);
+    printf("\n");
+    print_cmd_list(&cmdlst);
+    printf("\n");
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+    t_env_list	envlst;
+    char		*line;
     int			last_status;
 
-    init_env_lst(&envlist);
-
+    (void)argc;
+    (void)argv;
+    init_env_lst(&envlst);
+    get_envs(envp, &envlst);
     last_status = 0;
-    if (!get_envs(environ, &envlist))
-    {
-        fprintf(stderr, "get_envs failed\n");
-        return (1);
-    }
-    if (argc > 1)
-    {
-        for (int i = 1; i < argc; ++i)
-            test_input(argv[i], &envlist, last_status);
-        return (0);
-    }
     while (1)
     {
-        char *line = readline("911TurboS> ");
+        line = readline("911TurboS> ");
         if (!line)
-        {
-            printf("exit\n");
-            break;
-        }
+            break ;
         if (*line)
+        {
             add_history(line);
-        test_input(line, &envlist, last_status);
+            printf("%s\n", line);
+            process_line(line, &envlst, last_status);
+        }
         free(line);
     }
+    printf("exit\n");
     return (0);
 }

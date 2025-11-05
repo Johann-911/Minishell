@@ -19,13 +19,16 @@ RM          := rm -rf
 
 # Nur fürs Hauptprojekt (unverändert, kannst du später pflegen)
 MINI_SRCS := \
-    src/execution/main.c \
-    src/execution/redirections.c \
-	Garbage_Collector/garbage_collector.c \
-    src/parsing/token_check.c \
-    src/parsing/token_utils.c \
-    src/parsing/token_to_cmd.c \
-    src/parsing/debug.c
+    src/parsing/lexing/main.c \
+    src/parsing/lexing/token_check.c \
+    src/parsing/lexing/token_utils.c \
+    src/parsing/lexing/tokenize.c \
+    src/parsing/lexing/tokenize_helper.c \
+    src/parsing/lexing/debug.c \
+    src/parsing/lexing/test_subs.c \
+    src/parsing/command/find_token.c \
+    src/parsing/command/token_to_cmd.c \
+    src/parsing/command/token_to_cmd_helper.c
 
 # Parse-Test: nur Lexing-Dateien (ohne token_to_cmd)
 PARSER_SRCS := \
@@ -38,9 +41,11 @@ PARSER_SRCS := \
     src/parsing/lexing/init.c \
     src/parsing/command/find_token.c \
     src/parsing/command/token_to_cmd.c \
+    src/parsing/command/token_to_cmd_helper.c \
     src/parsing/command/add_env.c \
+    src/parsing/command/cmdlst_filelst.c \
     src/parsing/command/expand_env.c \
-        src/parsing/lexing/gc_substr_shim.c
+    src/parsing/lexing/gc_substr_shim.c
 
 #         Garbage_Collector/garbage_collector1.c \
 #     Garbage_Collector/garbage_collector_utils.c

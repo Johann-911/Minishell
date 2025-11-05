@@ -120,3 +120,4 @@ char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
 	}
 	return (tmp);
 }
+

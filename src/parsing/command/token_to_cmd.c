@@ -1,37 +1,105 @@
 
 #include "parser.h"
 
-t_segment *create_segment(char *start, int len, t_seg_type type)
+bool	is_redirection(t_toktype t)
 {
-	t_segment *segment;
-
-	segment = gc_malloc(sizeof(*segment));
-	if(!segment)
-		return NULL;
-	segment->value = gc_substr(start, 0, (size_t)len);
-	if(!segment->value)
-		return NULL;
-	segment->type = type;
-	segment->next = NULL; 
-	return segment;
+	return (t == TK_INFILE || t == TK_OUTFILE || t == TK_APPEND
+		|| t == TK_HEREDOC);
 }
 
-
-int push_segment(t_segment_list *lst, t_segment *segment)
+int	count_args(t_token *token)
 {
-	if(!lst || !segment)
-		return 0;
-	if (!lst->head)
+	int	i;
+
+	i = 0;
+	while (token && token->type != TK_PIPE)
 	{
-		lst->head = segment;
-		lst->tail = segment;
+		if (token->type == TK_WORD)
+			i++;
+		else if (is_redirection(token->type))
+		{
+			if (!token->next || token->next->type != TK_WORD)
+				return (-1);
+			token = token->next;
+		}
+		token = token->next;
 	}
-	else
-	{
-		lst->tail->next = segment;
-		lst->tail = segment;
-	}
-	lst->size++;
-	return (1);
+	return (i);
 }
 
+char	**create_array(t_token *token, t_cmd_node *cmdnode, int i)
+{
+	char	**cmd_array;
+
+	cmd_array = gc_malloc(sizeof(char *) * ((size_t)count_args(token) + 1));
+	if (!cmd_array)
+		return (NULL);
+	while (token && token->type != TK_PIPE)
+	{
+		if (is_redirection(token->type))
+		{
+			if (token->next)
+				token = token->next;
+			if (token)
+				token = token->next;
+			continue ;
+		}
+		if (token && token->type == TK_WORD)
+		{
+			cmd_array[i] = token->value;
+			if (i == 0 && cmd_array[0] && is_built_in(cmd_array[0]))
+				cmdnode->cmd_type = BUILTIN;
+			i++;
+		}
+		token = token->next;
+	}
+	return (cmd_array[i] = NULL, cmd_array);
+}
+
+char	*look_for_cmd(t_token *token, t_token_list *toklst, t_cmd_list *cmdlst)
+{
+	t_cmd_node	*cmdnode;
+
+	token = toklst->head;
+	while (token)
+	{
+		cmdnode = create_cmdnode();
+		if (!cmdnode)
+			return (NULL);
+		cmdnode->cmd = create_array(token, cmdnode, 0);
+		if (!cmdnode->cmd || collect_redirs(token, cmdnode) < 0)
+		{
+			cmdlst->syntax_error = 1;	
+			return (NULL);
+		}
+		push_cmd(cmdlst, cmdnode);
+		while (token && token->type != TK_PIPE)
+			token = token->next;
+		if (token && token->type == TK_PIPE)
+			token = token->next;
+	}
+	return (NULL);
+}
+
+void	final_token(t_token_list *toklst, t_env_list *envlst, int last_status)
+{
+	t_token			*token;
+	t_segment_list	*seglst;
+
+	if (!toklst)
+		return ;
+	token = toklst->head;
+	while (token)
+	{
+		if (token->type == TK_WORD)
+		{
+			seglst = gc_malloc(sizeof(*seglst));
+			if (!seglst)
+				return ;
+			init_segment_lst(seglst);
+			if (find_segment(seglst, token->value))
+				token->value = segments_expand(seglst, envlst, last_status);
+		}
+		token = token->next;
+	}
+}

@@ -6,7 +6,9 @@ int	red_len(char *input, int i)
 		return (0);
 	if ((input[i] == '<' && input[i + 1] == '<') || (input[i] == '>' && input[i
 		+ 1] == '>'))
+	{
 		return (2);
+	}
 	if (input[i] == '<' || input[i] == '>')
 		return (1);
 	return (0);
@@ -33,7 +35,27 @@ int handle_quote(char *input, int *i)
 	if(next < 0)
 		return 0;
 	*i = next;
-	return 1;
+	return 0;
+}
+
+int	word_end(char *input, int i)
+{
+	int next;
+	
+	while (input[i] && input[i] != ' ' && input[i] != '\t' && input[i] != '|'
+		&& input[i] != '<' && input[i] != '>')
+	{
+		if (input[i] == '\'' || input[i] == '\"')
+		{
+			next = scan_quote(input, i);
+			if (next < 0)
+				return (-1);
+			i = next;
+			}
+			else
+			i++;
+		}
+	return (i);
 }
 
 int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
@@ -43,13 +65,13 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 	int end;
 
 	if(!red_len)
-		return 0;
-	if(!add_token(lst, red_type(input, *i), input + *i, red_len))
-		return 0;
+		return 1;
+	if(add_token(lst, red_type(input, *i), input + *i, red_len) != 0)
+		return 1;
 	*i += red_len;
 	*i = skip_spaces(input, *i);
 	 if (!input[*i] || input[*i] == '|' || input[*i] == '<' || input[*i] == '>')
-        return 0;
+		return 1;
 	if(input[*i] == '\'' || input[*i] == '\"')
 	{
 		start = *i;
@@ -64,29 +86,9 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 	start = *i;
 	end = word_end(input, *i);
 	if(end <= start)
-		return 0;
-	if(!add_token(lst, TK_WORD, input + start, end - start))
-		return 0;
+		return 1;
+	if(add_token(lst, TK_WORD, input + start, end - start) != 0)
+		return 1;
 	*i = end;
 	return 1;
-}
-
-int	word_end(char *input, int i)
-{
-	int next;
-
-	while (input[i] && input[i] != ' ' && input[i] != '\t' && input[i] != '|'
-		&& input[i] != '<' && input[i] != '>')
-	{
-		if (input[i] == '\'' || input[i] == '\"')
-		{
-			next = scan_quote(input, i);
-			if (next < 0)
-				return (-1);
-			i = next;
-		}
-		else
-			i++;
-	}   
-	return (i);
 }
