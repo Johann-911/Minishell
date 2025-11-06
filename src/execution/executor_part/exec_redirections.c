@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:00:04 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/22 19:35:13 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/11/04 15:39:07 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ int setup_input_file(t_commandlist *cmd)
 	int input_count;
 	t_filelist *last_input;
 	int fd;
+
 	// t_gc *gc; // Removed unused variable
 	input_count = count_input(cmd);
 	if (input_count == 0)
@@ -118,6 +119,24 @@ int setup_output_file(t_commandlist *cmd)
 	if (last_output->type == OUTFILE)
 		fd = gc_open(last_output->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else
-		fd = gc_open(last_output->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		fd = gc_open(last_output->filename, O_WRONLY | O_CREAT | O_APPEND,
+					 0644);
 	return (fd);
+}
+
+/* Wrapper helpers to allow passing parser-side command node */
+int setup_input_file_from_cmd(t_cmd_node *cmd)
+{
+	t_commandlist tmp;
+
+	tmp.files = (t_filelist *)cmd->files;
+	return (setup_input_file(&tmp));
+}
+
+int setup_output_file_from_cmd(t_cmd_node *cmd)
+{
+	t_commandlist tmp;
+
+	tmp.files = (t_filelist *)cmd->files;
+	return (setup_output_file(&tmp));
 }
