@@ -1,8 +1,11 @@
-#include "parser.h"
+#include "minishell.h"
 
-t_cmd_node	*create_cmdnode(void)
+/* forward prototype for local helper */
+static void push_file(t_file_list *lst, t_file_node *node);
+
+t_cmd_node *create_cmdnode(void)
 {
-	t_cmd_node	*cmdnode;
+	t_cmd_node *cmdnode;
 
 	cmdnode = gc_malloc(sizeof(*cmdnode));
 	if (!cmdnode)
@@ -10,7 +13,7 @@ t_cmd_node	*create_cmdnode(void)
 	cmdnode->cmd_type = CMD;
 	cmdnode->cmd = NULL;
 	cmdnode->files = (t_file_list *)gc_malloc(sizeof(t_file_list));
-	if(!cmdnode->files)
+	if (!cmdnode->files)
 		return NULL;
 	cmdnode->files->head = NULL;
 	cmdnode->files->size = 0;
@@ -20,7 +23,7 @@ t_cmd_node	*create_cmdnode(void)
 
 void create_filenode(char *str, int red_type, t_file_list *filelst)
 {
-	t_file_node	*filenode;
+	t_file_node *filenode;
 
 	filenode = gc_malloc(sizeof(*filenode));
 	if (!filenode)
@@ -31,10 +34,10 @@ void create_filenode(char *str, int red_type, t_file_list *filelst)
 	return;
 }
 
-void	push_cmd(t_cmd_list *lst, t_cmd_node *node)
+void push_cmd(t_cmd_list *lst, t_cmd_node *node)
 {
 	if (!lst || !node)
-		return ;
+		return;
 	if (!lst->head)
 	{
 		lst->head = node;
@@ -48,10 +51,10 @@ void	push_cmd(t_cmd_list *lst, t_cmd_node *node)
 	lst->size++;
 }
 
-void	push_file(t_file_list *lst, t_file_node *node)
+void push_file(t_file_list *lst, t_file_node *node)
 {
 	if (!lst || !node)
-		return ;
+		return;
 	if (!lst->head)
 	{
 		lst->head = node;

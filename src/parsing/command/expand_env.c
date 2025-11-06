@@ -1,10 +1,9 @@
+#include "minishell.h"
+#include "garbage_collector.h"
 
-
-#include "parser.h"
-
-int	skip_var(char *str)
+int skip_var(char *str)
 {
-	int	i;
+	int i;
 
 	i = 1;
 	if (!str || str[0] != '$')
@@ -21,28 +20,27 @@ int	skip_var(char *str)
 	return (i);
 }
 
-char	*check_for_env(t_env_list *envlst, char *str, size_t len)
+char *check_for_env(t_env_list *envlst, char *str, size_t len)
 {
-	t_env_node	*node;
+	t_env_node *node;
 
 	if (!envlst || !str)
 		return (NULL);
 	node = envlst->head;
 	while (node)
 	{
-		if (node->key && ft_strlen(node->key) == len && ft_strncmp(node->key,
-				str, len) == 0)
+		if (node->key && ft_strlen(node->key) == len && ft_strncmp(node->key, str, len) == 0)
 			return (node->value);
 		node = node->next;
 	}
 	return (NULL);
 }
 
-char	*expand_env(char *str, t_env_list *env_lst)
+char *expand_env(char *str, t_env_list *env_lst)
 {
-	size_t	i;
-	size_t	start;
-	char	*value;
+	size_t i;
+	size_t start;
+	char *value;
 
 	i = 1;
 	if (!str || str[0] != '$' || !env_lst)
@@ -58,20 +56,19 @@ char	*expand_env(char *str, t_env_list *env_lst)
 	return (gc_strdup(""));
 }
 
-char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
-		int last_status, int i)
+char *expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
+					int last_status, int i)
 {
-	char	*old;
-	char	*expand;
-	char	*new;
+	char *old;
+	char *expand;
+	char *new;
 
 	if (!seg_str)
 		return (NULL);
 	old = gc_strdup("");
 	while (seg_str[i])
 	{
-		if (seg_str[i] == '$' && (seg_type == SEG_DOUBLE
-				|| seg_type == SEG_NO_QUOTE))
+		if (seg_str[i] == '$' && (seg_type == SEG_DOUBLE || seg_type == SEG_NO_QUOTE))
 		{
 			expand = get_expand(seg_str, i, last_status, envlst);
 			new = gc_strjoin(old, expand);
@@ -88,21 +85,13 @@ char	*expand_or_not(char *seg_str, t_seg_type seg_type, t_env_list *envlst,
 	return (new);
 }
 
-char	*get_expand(char *seg_str, int i, int last_status, t_env_list *envlst)
+char *segments_expand(t_segment_list *seglst, t_env_list *envlst,
+					  int last_status)
 {
-	if (seg_str[i + 1] == '?')
-		return (gc_itoa(last_status));
-	else
-		return (expand_env(seg_str + i, envlst));
-}
-
-char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
-		int last_status)
-{
-	t_segment	*curr;
-	char		*tmp;
-	char		*expansion;
-	char		*new_segment;
+	t_segment *curr;
+	char *tmp;
+	char *expansion;
+	char *new_segment;
 
 	if (!seglst)
 		return (NULL);
@@ -111,7 +100,7 @@ char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
 	while (curr)
 	{
 		expansion = expand_or_not(curr->value, curr->type, envlst, last_status,
-				0);
+								  0);
 		if (!expansion)
 			return (NULL);
 		new_segment = gc_strjoin(tmp, expansion);
@@ -120,4 +109,3 @@ char	*segments_expand(t_segment_list *seglst, t_env_list *envlst,
 	}
 	return (tmp);
 }
-

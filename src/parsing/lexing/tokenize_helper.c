@@ -33,7 +33,7 @@ int handle_quote(char *input, int *i)
 		return 0;
 	next = scan_quote(input, *i);
 	if(next < 0)
-		return 0;
+		return 1;
 	*i = next;
 	return 0;
 }
@@ -77,11 +77,11 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 		start = *i;
 		next = scan_quote(input, *i);
 		if(next < 0)
-			return 0;
+			return 1;
 		if(!add_token (lst, TK_WORD, input + start, next - start))
-			return 0;
+			return 1;
 		*i = next;
-		return 1;
+		return 0;
 	}
 	start = *i;
 	end = word_end(input, *i);
@@ -90,5 +90,5 @@ int handle_redir(t_token_list *lst, char *input, int *i, int red_len)
 	if(add_token(lst, TK_WORD, input + start, end - start) != 0)
 		return 1;
 	*i = end;
-	return 1;
+	return 0;
 }
