@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_utility_to_run.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 13:12:19 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/22 19:35:09 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/11/03 14:17:02 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,37 +14,38 @@
 #include <stdio.h>
 
 // Stub for not_error_file
-int not_error_file(t_filelist *current, int update, t_commandlist *cmd)
+int	not_error_file(t_filelist *current, int update, t_commandlist *cmd)
 {
 	(void)cmd;
 	if (current && current->filename)
-		fprintf(stderr, "%s: No such file or directory\n", current->filename);
+	{
+		ft_putstr_fd(current->filename, STDERR_FILENO);
+		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+	}
 	else
-		fprintf(stderr, "input file error\n");
+		ft_putstr_fd("input file error\n", STDERR_FILENO);
 	(void)update;
 	return (-1);
 }
 
 // Stub for standard_error
-int standard_error(int update, t_commandlist *cmd)
+int	standard_error(int update, t_commandlist *cmd)
 {
 	(void)cmd;
 	if (update)
-		fprintf(stderr, "redirection/setup error\n");
+		ft_putstr_fd("redirection/setup error\n", STDERR_FILENO);
 	else
-		fprintf(stderr, "error\n");
+		ft_putstr_fd("error\n", STDERR_FILENO);
 	return (-1);
 }
-
-#include "executor.h"
-
 /*
 1.opens and redirects a regualr input file to standard input
 2.handling errors if file doesnt exist
 */
-int handling_the_infile(t_commandlist *cmd, t_filelist *current, int update)
+
+int	handling_the_infile(t_commandlist *cmd, t_filelist *current, int update)
 {
-	int fd;
+	int	fd;
 
 	fd = gc_open(current->filename, O_RDONLY);
 	if (fd == -1)
@@ -58,9 +59,9 @@ int handling_the_infile(t_commandlist *cmd, t_filelist *current, int update)
 1.sets up the final input redirection by processing all input files
 2. and the heredocs then applying the last one to standard input
 */
-int handling_the_heredoc(t_commandlist *cmd, t_filelist *current, int update)
+int	handling_the_heredoc(t_commandlist *cmd, t_filelist *current, int update)
 {
-	int heredoc_pipe[2];
+	int	heredoc_pipe[2];
 
 	gc_pipe(heredoc_pipe);
 	if (current->filename != NULL && (*current->filename))
@@ -77,13 +78,10 @@ int handling_the_heredoc(t_commandlist *cmd, t_filelist *current, int update)
 1.sets up the final input redirection by processing all input files
 2.and the heredocs then applying the last one to standard input
 */
-int setup_input(t_commandlist *cmd, int *redirect, int update)
+int	setup_input(t_commandlist *cmd, int *redirect, int update)
 {
-	// int			fd; // Unused
-	// int			lc; // Unused
-	// t_filelist	*current; // Unused
 	(void)cmd;
 	(void)redirect;
 	(void)update;
-	return 0;
+	return (0);
 }
