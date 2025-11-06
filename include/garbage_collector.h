@@ -6,7 +6,7 @@
 /*   By: klejdi <klejdi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 16:02:10 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/17 16:02:15 by klejdi           ###   ########.fr       */
+/*   Updated: 2025/11/04 21:22:34 by klejdi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ typedef struct s_gc_collector t_gc_collector;
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 
 typedef enum e_gc_type
 {
@@ -71,6 +71,8 @@ char *gc_strdup(const char *s);
 char *gc_strndup(const char *s, size_t n);
 char **gc_split(const char *s, char c);
 char *gc_substr(const char *s, unsigned int start, size_t len);
+char *gc_itoa(int n);
+char *gc_strjoin(const char *s1, const char *s2);
 
 // File descriptor utilities
 int gc_open(const char *path, int flags, ...);

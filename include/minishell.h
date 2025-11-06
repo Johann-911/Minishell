@@ -6,7 +6,7 @@
 /*   By: kskender <kskender@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 14:22:44 by kskender          #+#    #+#             */
-/*   Updated: 2025/10/07 13:24:06 by kskender         ###   ########.fr       */
+/*   Updated: 2025/11/03 15:41:13 by kskender         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 // Includes -- BEGIN
 // # include "executor.h"
 // # include "garbage_collector.h"
-#include "parser.h"
 # include "libft/libft.h"
+# include "parser.h"
 # include <dirent.h>
 # include <errno.h>
 # include <readline/history.h>
@@ -48,7 +48,7 @@ typedef struct s_cmd_node
 	int							cmd_type;
 	char						**cmd;
 	t_file_list					*files;
-	t_env_list					*env;
+	struct s_env_list			*env;
 }								t_cmd_node;
 
 typedef struct s_cmd_list
@@ -87,7 +87,8 @@ typedef enum REDIR_TYPE
 	INFILE,
 	OUTFILE,
 	HEREDOC,
-	OUTFILE_APPEND
+	OUTFILE_APPEND,
+	NO_REDIRECTION = -1
 }								t_REDIR_TYPE;
 // Structs -- END
 
@@ -105,6 +106,8 @@ t_env_list						*initialize_shell(char **env);
 char							*get_prompt(void);
 int								process_command(char *prompt,
 									t_env_list *env_list);
+char							*get_env_value(t_env_list *env,
+									const char *key);
 // main.c -- END
 
 // signals.c -- BEGIN
